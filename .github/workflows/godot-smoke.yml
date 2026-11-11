@@ -24,3 +24,6 @@ jobs:
 
       - name: 기본 기능 검사
         run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd
+
+      - name: 자율 대전 및 경기 기록 검사
+        run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/combat_simulation.gd
