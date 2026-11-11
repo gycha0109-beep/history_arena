@@ -11,7 +11,7 @@ var manifest: Dictionary = {}
 var model_root: Node3D
 var skeleton: Skeleton3D
 var animation_player: AnimationPlayer
-var weapon_socket: Node3D
+var weapon_socket
 var animation_state: String = ""
 var previous_x: float = 0.0
 var has_previous_position: bool = false
@@ -60,8 +60,16 @@ func load_manifest(manifest_path: String) -> bool:
     if not weapon_path.is_empty() and not _attach_weapon(weapon_path):
         return false
 
+    var missing_clips: Array[String] = []
+    for required in ["idle", "walk", "attack_light", "hit_react"]:
+        if not _has_clip(required):
+            missing_clips.append(required)
+    if not missing_clips.is_empty():
+        status_message = "%s: 모션 클립 이름을 확인하세요: %s" % [fighter_id, ", ".join(missing_clips)]
+        return false
+
     ready_for_preview = true
-    status_message = "%s: 모델·모션·무기 연결됨 (화질 미검증)" % fighter_id
+    status_message = "%s: 3D 모델·기본 모션 연결됨 (화질 미검증)" % fighter_id
     return true
 
 
@@ -140,6 +148,17 @@ func _map_attack(move_name: String) -> String:
             return "attack_heavy"
         _:
             return "idle"
+
+
+func _has_clip(state_name: String) -> bool:
+    if animation_player == null:
+        return false
+    var clips: Dictionary = manifest.get("animation_clips", {})
+    var names: Array = clips.get(state_name, [])
+    for requested in names:
+        if animation_player.has_animation(str(requested)):
+            return true
+    return false
 
 
 func _play_named_clip(state_name: String) -> void:
