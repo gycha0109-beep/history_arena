@@ -1,0 +1,16 @@
+{
+  "id": "musashi",
+  "model_path": "res://assets/characters/musashi/models/musashi.glb",
+  "weapon_path": "res://assets/weapons/katana.glb",
+  "hand_bone_candidates": ["RightHand", "mixamorig:RightHand", "mixamorig_RightHand", "Hand.R", "hand_r"],
+  "grip_position": [0.0, 0.0, 0.0],
+  "grip_rotation_degrees": [0.0, 0.0, 0.0],
+  "animation_clips": {
+    "idle": ["Idle", "idle", "Armature|Idle"],
+    "walk": ["Walk", "Walking", "walk", "Armature|Walking"],
+    "attack_light": ["QuickCut", "quick_cut", "Slash"],
+    "attack_heavy": ["HeavyCut", "heavy_cut"],
+    "hit_react": ["HitReact", "hit_react", "Hit"],
+    "ko": ["KO", "ko", "Death"]
+  }
+}
