@@ -12,3 +12,7 @@
 - Blender 원본 및 대용량 파일은 Git LFS로 관리; Git LFS가 활성화되지 않았다면 대형 파일을 커밋하지 않음
 
 자세한 기준: [에셋 제작 지침](../docs/ASSET_PIPELINE.md)
+
+- [Meshy / Blender / Mixamo → Godot 실제 파일 경로 및 연결 규약](../docs/MESHY_TO_GODOT.md)
+- 캐릭터별 `character.json`은 경로·모션 이름·무기 손잡이 오프셋을 지정합니다.
+- 아직 `musashi.glb`, `bruce_lee.glb`, `katana.glb`는 확보되지 않았습니다.
