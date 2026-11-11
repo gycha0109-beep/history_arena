@@ -27,3 +27,6 @@ jobs:
 
       - name: 자율 대전 및 경기 기록 검사
         run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/combat_simulation.gd
+
+      - name: 캐릭터 에셋 연결·무기 크기 검사
+        run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/asset_pipeline.gd
