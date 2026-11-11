@@ -9,7 +9,7 @@ func _initialize() -> void:
         var first = CombatScript.new()
         first.begin(match_seed)
 
-        while not first.is_finished() and first.session.tick < first.MAX_TICKS:
+        while not first.is_finished() and first.session.tick < CombatScript.MAX_TICKS:
             first.advance_tick()
 
         if not first.is_finished():
@@ -44,7 +44,7 @@ func _initialize() -> void:
 
         var second = CombatScript.new()
         second.begin(match_seed)
-        while not second.is_finished() and second.session.tick < second.MAX_TICKS:
+        while not second.is_finished() and second.session.tick < CombatScript.MAX_TICKS:
             second.advance_tick()
 
         if JSON.stringify(record) != JSON.stringify(second.to_record()):
