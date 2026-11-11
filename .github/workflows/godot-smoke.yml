@@ -1,0 +1,26 @@
+name: Godot 기본 검사
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스 내려받기
+        uses: actions/checkout@v4
+
+      - name: Godot 4.7.2 설치
+        run: |
+          curl -fsSL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  godot.zip" | sha256sum -c -
+          unzip -q godot.zip
+          chmod +x Godot_v4.7.2-stable_linux.x86_64
+
+      - name: 프로젝트 불러오기
+        run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --editor --path . --quit
+
+      - name: 기본 기능 검사
+        run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd

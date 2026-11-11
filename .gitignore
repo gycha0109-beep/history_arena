@@ -1,0 +1,15 @@
+# Godot generated data
+.godot/
+.import/
+*.tmp
+*.log
+# Local exports and captures
+build/
+exports/
+captures/
+renders/
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

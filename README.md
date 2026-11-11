@@ -122,3 +122,18 @@
 - 로컬 기존 프로젝트 후보: `D:\cha\History_arena` (**현재 접근 불가, 상태 미검증**)
 - 이 문서는 **확정된 방향과 계획을 기록**한다. 게임 구현이나 에셋 제작이 완료되었다는 뜻이 아니다.
 - 향후 구현과 문서 변경은 Git으로 관리한다.
+
+
+---
+
+## 현재 개발 기반 및 기술 문서
+
+- [Windows 개발 환경 설정](docs/SETUP.md)
+- [시스템 기술 설계](docs/ARCHITECTURE.md)
+- [3D 캐릭터·모션 제작 지침](docs/ASSET_PIPELINE.md)
+- [경기 기록·재생 설계](docs/REPLAY_SPEC.md)
+- [단계별 제작 계획](docs/IMPLEMENTATION_PLAN.md)
+- [자동·수동 검증 기준](docs/TEST_PLAN.md)
+- [에셋 보관 규칙](assets/README.md)
+
+**현재 구현:** Godot 기본 씬, 고정 60Hz 틱·경기 기록 최소 구조, GitHub 자동 기본 검사. **미구현:** 실제 캐릭터·애니메이션·전투 판정·AI·영상 출력.
