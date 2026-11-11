@@ -4,7 +4,7 @@ const MatchSessionScript = preload("res://scripts/core/match_session.gd")
 
 @onready var status_label: Label = $HUD/Status
 
-var session: RefCounted
+var session
 
 
 func _ready() -> void:
