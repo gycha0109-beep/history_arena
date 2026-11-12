@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
     [ValidateRange(1,40)]
@@ -104,7 +104,35 @@ if ($Mode -eq 'replay') {
 
 
 
+
+if ($Mode -eq 'mocapqa') {
+    $fetcher = Join-Path $root 'tools\fetch_mocap_reference.py'
+    $model = Join-Path $root 'samples\external\soldier_mocap_ref.glb'
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $python) { throw "QA ?? ?? ??? Python? ?????." }
+    & $python.Source $fetcher
+    if ($LASTEXITCODE -ne 0) { throw "???? ?? ??? ???? ?????." }
+    & $godot --headless --editor --path $root --quit
+    if ($LASTEXITCODE -ne 0) { throw "GLB ???? ??" }
+    $captureDir = Join-Path $root 'captures\walk'
+    New-Item -ItemType Directory -Path $captureDir -Force | Out-Null
+    $avi = Join-Path $captureDir 'mocap_5s_compare.avi'
+    $mp4 = Join-Path $captureDir 'mocap_5s_compare.mp4'
+    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/mocap_5s_comparison.tscn
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "5? ?? ?? ?? ??" }
+    $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if (-not $encoder) { throw "FFmpeg? ?? MP4 ?? ??" }
+    & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
+    if ($LASTEXITCODE -ne 0) { throw "MP4 ??? ??" }
+    Remove-Item -LiteralPath $avi -Force
+    Copy-Item -LiteralPath (Join-Path $root 'tools\mocap_compare_viewer.html') -Destination (Join-Path $captureDir 'compare.html') -Force
+    Write-Warning "???? ??? ?? ?????. ?? ??? ??? ?? ??? ????."
+    Write-Host ("?? HTML: " + (Join-Path $captureDir 'compare.html'))
+    exit 0
+}
+
 if ($Mode -eq 'walkqa') {
+    Write-Warning "?? ? ?? ?? ?? ??? ?? ?? ???. ??? ??? ??? ????."
     $refAsset = Join-Path $root 'samples\external\camper_walk_cc0.glb'
     if (-not (Test-Path $refAsset)) {
         $python = Get-Command python -ErrorAction SilentlyContinue
