@@ -71,7 +71,10 @@ func _run_tests() -> void:
         while not simulation.is_finished():
             simulation.advance_tick()
         var expected: Dictionary = simulation.to_record()
-        if JSON.stringify(expected) != JSON.stringify(reader.record):
+        # JSON parser converts some numeric representations (e.g. 1 -> 1.0).
+        # Compare decoded JSON structures rather than pre-serialization text.
+        var normalized_expected: Variant = JSON.parse_string(JSON.stringify(expected))
+        if normalized_expected != reader.record:
             _fail("같은 시드의 경기와 저장된 재생 기록이 다릅니다: %d" % seed)
             return
 
