@@ -1,7 +1,12 @@
 param(
-    [ValidateSet('preview','battle','test','record','audit')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay')]
     [string]$Mode = 'preview',
-    [string]$GodotPath = ''
+    [string]$GodotPath = '',
+    [ValidateRange(1,40)]
+    [int]$Count = 12,
+    [ValidateRange(0,2147483600)]
+    [int]$FirstSeed = 20261112,
+    [string]$ReplayFile = ''
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -59,13 +64,37 @@ if ($Mode -eq 'test') {
         @('--headless','--path',$root,'--script','res://tests/smoke.gd'),
         @('--headless','--path',$root,'--script','res://tests/combat_simulation.gd'),
         @('--headless','--path',$root,'--script','res://tests/asset_pipeline.gd'),
-        @('--headless','--path',$root,'--script','res://tests/five_second_preview.gd')
+        @('--headless','--path',$root,'--script','res://tests/five_second_preview.gd'),
+        @('--headless','--path',$root,'--script','res://tests/replay_pipeline.gd')
     )
     foreach ($argsArray in $tests) {
         & $godot @argsArray
         if ($LASTEXITCODE -ne 0) { throw "Godot 자동 검사가 실패했습니다. 종료 코드: $LASTEXITCODE" }
     }
     Write-Host "모든 Godot 기본 검사 통과"
+    exit 0
+}
+
+if ($Mode -eq 'batch') {
+    & $godot --headless --path $root --script res://tools/generate_matches.gd -- --count $Count --first-seed $FirstSeed --out-dir res://captures/matches
+    if ($LASTEXITCODE -ne 0) { throw "경기 자동 생성·저장에 실패했습니다." }
+    Write-Host "경기 목록: $root\captures\matches\index.json"
+    exit 0
+}
+
+if ($Mode -eq 'replay') {
+    $replayArg = $ReplayFile
+    if (-not $replayArg) {
+        $indexFile = Join-Path $root 'captures\matches\index.json'
+        if (-not (Test-Path $indexFile)) {
+            throw "저장된 경기 목록이 없습니다. 먼저 run-dev.cmd -Mode batch를 실행하세요."
+        }
+        $selection = Get-Content -LiteralPath $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
+        if (-not $selection.selected_file) { throw "저장된 경기 목록에 추천 경기가 없습니다." }
+        $replayArg = "res://captures/matches/" + $selection.selected_file
+    }
+    & $godot --path $root res://scenes/replay_viewer.tscn -- --replay $replayArg
+    if ($LASTEXITCODE -ne 0) { throw "저장된 경기 재생을 시작하지 못했습니다." }
     exit 0
 }
 
