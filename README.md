@@ -145,3 +145,11 @@
 - [Meshy → Blender/Mixamo → Godot 연결 실행서](docs/MESHY_TO_GODOT.md)
 - 두 캐릭터의 GLB 모델 경로·애니메이션 이름·무사시 손뼈와 검 장착을 **코드로 연결할 수 있도록 준비**했습니다.
 - **현재 실제 모델과 모션 파일은 없으므로, 화면 품질 검증은 수행하지 않았습니다.**
+
+### 5초 애니메이션 미리보기
+
+- [5초 검격·피격 장면 실행 및 영상 출력](docs/FIVE_SECOND_PREVIEW.md)
+- `run-dev.cmd -Mode preview`: 독립된 5초 장면 실행
+- `run-dev.cmd -Mode test`: 모든 Godot 자동 검사
+- `run-dev.cmd -Mode record`: 실제 GLB 모델 확보 후 5초 영상 출력 시도
+- **실제 3D 모델과 애니메이션은 아직 미확보**이므로 고품질 영상 제작 완료 상태는 아닙니다.
