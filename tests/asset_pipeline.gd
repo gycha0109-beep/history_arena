@@ -5,6 +5,10 @@ const CharacterVisualScript = preload("res://scripts/visuals/character_visual.gd
 
 
 func _initialize() -> void:
+    call_deferred("_run_tests")
+
+
+func _run_tests() -> void:
     var holder: Node3D = Node3D.new()
     root.add_child(holder)
 
