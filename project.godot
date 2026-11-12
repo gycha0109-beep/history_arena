@@ -12,6 +12,14 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 
+; Movie Maker uses a fixed portrait viewport, with a small visible window.
+; This avoids monitor-height clamping on 768px-high school displays.
+window/size/viewport_width.movie=720
+window/size/viewport_height.movie=1280
+window/size/window_width_override.movie=405
+window/size/window_height_override.movie=720
+window/stretch/mode.movie="viewport"
+
 [physics]
 common/physics_ticks_per_second=60
 

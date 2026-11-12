@@ -13,3 +13,6 @@ renders/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local licensed import test assets (not part of product)
+samples/external/

@@ -1,4 +1,4 @@
-param(
+﻿param(
     [ValidateSet('preview','battle','test','record','audit','batch','replay')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
@@ -16,11 +16,13 @@ function Resolve-Godot {
     if ($GodotPath -and (Test-Path $GodotPath)) {
         return (Resolve-Path $GodotPath).Path
     }
+    if ($env:LEGENDARY_GODOT -and (Test-Path $env:LEGENDARY_GODOT)) { return $env:LEGENDARY_GODOT }
     foreach ($exe in @('godot', 'godot.exe', 'Godot_v4.7.2-stable_win64.exe')) {
         $cmd = Get-Command $exe -ErrorAction SilentlyContinue
         if ($cmd) { return $cmd.Source }
     }
     foreach ($candidate in @(
+        'D:\cha\.toolcache\godot\4.7.2\Godot_v4.7.2-stable_win64_console.exe',
         (Join-Path $root '.tools\Godot_v4.7.2-stable_win64.exe'),
         (Join-Path $root 'Godot_v4.7.2-stable_win64.exe'),
         (Join-Path $env:USERPROFILE 'Downloads\Godot_v4.7.2-stable_win64.exe')
