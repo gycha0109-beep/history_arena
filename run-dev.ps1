@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa','mocapfix')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
     [ValidateRange(1,40)]
@@ -104,6 +104,39 @@ if ($Mode -eq 'replay') {
 
 
 
+
+
+if ($Mode -eq 'mocapfix') {
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $python) { throw "?? ???? Python 3? ?????." }
+    & $python.Source (Join-Path $root 'tools\fetch_mocap_reference.py')
+    if ($LASTEXITCODE -ne 0) { throw "???? ?? ????/?? ??" }
+    & $python.Source (Join-Path $root 'tools\author_mocap_composite.py')
+    if ($LASTEXITCODE -ne 0) { throw "?/?? ????? ?? ??" }
+    & $godot --headless --editor --path $root --quit
+    if ($LASTEXITCODE -ne 0) { throw "? 3D ??? Godot? ???? ?????." }
+    & $godot --headless --path $root --script res://tests/mocap_reworked_local.gd
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ??/? ??? ?? ??" }
+    $output = Join-Path $root 'captures\walk'
+    New-Item -ItemType Directory -Path $output -Force | Out-Null
+    $avi = Join-Path $output 'mocap_5s_reworked.avi'
+    $mp4 = Join-Path $output 'mocap_5s_reworked.mp4'
+    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/mocap_5s_reworked.tscn
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "5? ?? ?? ?? ??" }
+    $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if (-not $encoder) { throw "FFmpeg? ?? MP4 ??? ??: $avi" }
+    & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
+    if ($LASTEXITCODE -ne 0) { throw "MP4 ??? ??" }
+    Remove-Item -LiteralPath $avi -Force
+    Copy-Item -LiteralPath (Join-Path $root 'tools\mocap_reworked_viewer.html') -Destination (Join-Path $output 'compare_reworked.html') -Force
+    if (-not (Test-Path (Join-Path $output 'mocap_5s_compare.mp4'))) {
+        Write-Warning "??? ?? ??? ????. ??? -Mode mocapqa? ??? ? ????."
+    }
+    Write-Host ("??/?? ?? 5? ??: " + $mp4)
+    Write-Host ("?? ?? HTML: " + (Join-Path $output 'compare_reworked.html'))
+    Write-Warning "?? ?? ??? ?? ????? ?? ?? ??? ??? ??? ??? ?? ?? ??? ?????."
+    exit 0
+}
 
 if ($Mode -eq 'mocapqa') {
     $fetcher = Join-Path $root 'tools\fetch_mocap_reference.py'

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레전더리 배틀 · 왼발과 상체 수정 전후 5초 비교</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#0b101a;color:#eef5ff;font:15px/1.5 system-ui,"Malgun Gothic",sans-serif}
+main{max-width:1160px;margin:auto;padding:22px}
+h1{margin:0 0 8px;font-size:23px}p{color:#aebed3}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+section{background:#141e2c;border:1px solid #35445a;border-radius:13px;padding:14px}
+h2{font-size:17px;margin:0 0 8px}
+video{display:block;width:100%;aspect-ratio:9/16;max-height:690px;border-radius:8px;background:#060910;object-fit:contain}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 10px}
+button{background:#203b65;color:white;border:1px solid #5579aa;border-radius:8px;padding:9px 13px;cursor:pointer}
+input[type="range"]{flex:1;min-width:150px}
+a{color:#abcaff}
+small{color:#a2b1c6}
+@media(max-width:720px){main{padding:12px}.columns{grid-template-columns:1fr}}
+</style></head><body><main>
+<h1>5초 걷기 · 왼발과 상체 수정 전후 비교</h1>
+<p>두 영상 모두 <strong>검토용</strong>입니다. 최종 무사시 모델이나 게임 품질 승인 영상이 아닙니다. 같은 모션캡처 원본을 바탕으로 왼발 발끝 궤적과 상체 애니메이션만 변경했습니다.</p>
+<div class="columns">
+<section><h2>원본 — 왼발 걸림·상체 고정</h2>
+<video id="before" src="mocap_5s_compare.mp4" controls playsinline muted loop preload="metadata"></video>
+<p>왼발이 뒤에서 앞으로 나올 때 발끝이 지면에 겹치고, 상체 관절에 보행 동작이 없습니다.</p></section>
+<section><h2>수정본 — 왼발 여유·실제 상체 모션</h2>
+<video id="after" src="mocap_5s_reworked.mp4" controls playsinline muted loop preload="metadata"></video>
+<p>왼발 발목 동작을 애니메이션에 보정하고 바닥 높이를 조정했습니다. 별도 보행 모션의 어깨·팔 움직임을 합성했습니다.</p></section>
+</div>
+<div class="controls">
+<button id="play">동시 재생 / 일시정지</button>
+<button id="reset">처음으로</button>
+<button id="back">-1프레임</button>
+<button id="forward">+1프레임</button>
+<input id="seek" type="range" min="0" max="300" value="0" step="1" aria-label="프레임 선택">
+<output id="frame">0 / 300</output>
+</div>
+<p><small>재생 규격: 720×1280 · 60fps · 5초. 원본 발끝 관절 위치를 기준으로 진행한 검증이며, 신발 메시 관통까지 완전히 해결했다고 판정하지 않았습니다. 본 모델은 제3자 CC BY 참고 모델로 최종 무사시 모델이 아닙니다.</small></p>
+</main><script>
+const a=document.getElementById('before'),b=document.getElementById('after'),seek=document.getElementById('seek'),out=document.getElementById('frame');
+function move(n){const f=Math.min(300,Math.max(0,n));a.pause();b.pause();a.currentTime=f/60;b.currentTime=f/60;seek.value=String(f);out.value=f+' / 300';}
+document.getElementById('play').onclick=async()=>{if(a.paused){b.currentTime=a.currentTime;await Promise.allSettled([a.play(),b.play()]);}else{a.pause();b.pause();}};
+document.getElementById('reset').onclick=()=>move(0);
+document.getElementById('back').onclick=()=>move(Number(seek.value)-1);
+document.getElementById('forward').onclick=()=>move(Number(seek.value)+1);
+seek.oninput=()=>move(Number(seek.value));
+a.ontimeupdate=()=>{if(!a.paused){const f=Math.min(300,Math.round(a.currentTime*60));seek.value=String(f);out.value=f+' / 300';}};
+</script></body></html>
