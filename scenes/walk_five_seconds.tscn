@@ -1,0 +1,46 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/preview/walk_five_seconds.gd" id="1_script"]
+
+[sub_resource type="Environment" id="2_env"]
+background_mode = 1
+background_color = Color(0.05, 0.065, 0.085, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.57, 0.72, 1)
+ambient_light_energy = 0.72
+
+[node name="WalkFiveSeconds" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("2_env")
+
+[node name="Stage" type="Node3D" parent="."]
+
+[node name="Actor" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
+fov = 49.0
+near = 0.05
+far = 70.0
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-43, -35, 0)
+light_energy = 1.35
+
+[node name="FillLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 2.7, 2.5)
+light_color = Color(0.75, 0.84, 1, 1)
+light_energy = 0.75
+omni_range = 7
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 620.0
+offset_bottom = 155.0
+theme_override_font_sizes/font_size = 20
+text = "5초 보행 검증 준비 중"

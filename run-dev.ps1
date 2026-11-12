@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
     [ValidateRange(1,40)]
@@ -68,7 +68,8 @@ if ($Mode -eq 'test') {
         @('--headless','--path',$root,'--script','res://tests/asset_pipeline.gd'),
         @('--headless','--path',$root,'--script','res://tests/five_second_preview.gd'),
         @('--headless','--path',$root,'--script','res://tests/replay_pipeline.gd'),
-        @('--headless','--path',$root,'--script','res://tests/dual_wield_manifest.gd')
+        @('--headless','--path',$root,'--script','res://tests/dual_wield_manifest.gd'),
+        @('--headless','--path',$root,'--script','res://tests/walk_five_seconds.gd')
     )
     foreach ($argsArray in $tests) {
         & $godot @argsArray
@@ -101,6 +102,40 @@ if ($Mode -eq 'replay') {
     exit 0
 }
 
+
+
+if ($Mode -eq 'walkqa') {
+    $refAsset = Join-Path $root 'samples\external\camper_walk_cc0.glb'
+    if (-not (Test-Path $refAsset)) {
+        $python = Get-Command python -ErrorAction SilentlyContinue
+        if (-not $python) { throw "CC0 ?? ?? ????? Python? ?????." }
+        & $python.Source (Join-Path $root 'tools\fetch_walk_reference.py')
+        if ($LASTEXITCODE -ne 0) { throw "?? ?? ????/??? ??????." }
+    }
+    $captureDir = Join-Path $root 'captures\walk'
+    New-Item -ItemType Directory -Path $captureDir -Force | Out-Null
+    & $godot --headless --editor --path $root --quit
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? GLB ????? ??????." }
+    & $godot --headless --path $root --script res://tests/walk_qa_local.gd
+    if ($LASTEXITCODE -ne 0) { throw "?? 5? ?? ??? ???? ????? ?? ?? ??" }
+    $avi = Join-Path $captureDir 'walk_5s.avi'
+    $mp4 = Join-Path $captureDir 'walk_5s.mp4'
+    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/walk_five_seconds.tscn
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) {
+        throw "5? ?? ?? ?? ??"
+    }
+    $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if (-not $encoder) { throw "FFmpeg? ???? MP4? ?? ? ????. AVI: $avi" }
+    & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
+    if ($LASTEXITCODE -ne 0) { throw "5? ?? MP4 ?? ??" }
+    & $encoder.Source -hide_banner -loglevel error -y -ss 2.0 -i $mp4 -frames:v 1 (Join-Path $captureDir 'walk_5s_poster.jpg')
+    if ($LASTEXITCODE -ne 0) { throw "5? ?? ??? ?? ??" }
+    Copy-Item -LiteralPath (Join-Path $root 'tools\walk_5s_viewer.html') -Destination (Join-Path $captureDir 'preview.html') -Force
+    Remove-Item -LiteralPath $avi -Force
+    Write-Host ("5? ?? ??: " + $mp4)
+    Write-Host ("HTML ????: " + (Join-Path $captureDir 'preview.html'))
+    exit 0
+}
 
 if ($Mode -eq 'dualqa') {
     foreach ($sample in @(
