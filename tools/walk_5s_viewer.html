@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레전더리 배틀 — 5초 보행 검사</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{font-family:system-ui,"Malgun Gothic",sans-serif;margin:0;background:#0c101a;color:#eaf0fa}
+main{max-width:1000px;padding:26px;margin:auto}h1{font-size:25px;margin:0 0 12px}
+p{color:#b0c1d9;font-size:15px}
+.layout{display:grid;grid-template-columns:minmax(280px,400px) 1fr;gap:24px}
+video{background:#06080e;border-radius:14px;border:1px solid #324052;width:100%;aspect-ratio:9/16}
+aside{padding:22px;background:#152030;border-radius:14px;border:1px solid #344459}
+dt{font-size:13px;color:#9badc4}dd{margin:2px 0 15px}a{color:#92c9ff}
+@media(max-width:700px){.layout{grid-template-columns:1fr}main{padding:16px}}
+</style></head><body><main>
+<h1>레전더리 배틀 · 실제 5초 보행 검증</h1>
+<p>이번 단계는 걷기와 화면 이동의 일치 여부만 검사합니다. 영상의 모델은 무사시가 아닌 CC0 임시 인체입니다.</p>
+<div class="layout">
+<video controls playsinline loop preload="metadata" poster="walk_5s_poster.jpg" src="walk_5s.mp4">지원되지 않는 영상입니다.</video>
+<aside><h3>검증 항목</h3><dl>
+<dt>길이</dt><dd>5초 · 60fps · 300프레임</dd>
+<dt>실제 이동량</dt><dd>6.75m (1.35m/초)</dd>
+<dt>카메라</dt><dd>측면 추적 촬영. 고정된 바닥 기준선이 뒤로 움직여 전진 확인 가능</dd>
+<dt>달라진 점</dt><dd>발·다리의 보행 주기를 제거하지 않고 유지하며, 캐릭터의 실제 위치를 변경</dd>
+<dt>아직 해결하지 못한 문제</dt><dd>완벽한 지지 발 고정 및 최종 무사시 모델·손가락·이도류 검술 모션</dd>
+<dt>실제 모델 출처</dt><dd><a href="https://vibeassets.io/a/zpepqtthci">CC0 Vibeassets rigged walker</a></dd>
+</dl>
+<p><a href="walk_5s.mp4">MP4 영상 직접 열기</a></p></aside></div>
+</main></body></html>
