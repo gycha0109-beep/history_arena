@@ -2,10 +2,11 @@ extends Node3D
 ## 5-second continuous walk QA using an authorized CC0 clothed humanoid.
 ## This tests real leg cycles + root travel, NOT a final Musashi model.
 
+const FootTrack = preload("res://scripts/preview/foot_contact_track.gd")
 const MODEL_PATH: String = "res://samples/external/camper_walk_cc0.glb"
 const FRAMES: int = 300
 const HZ: float = 60.0
-const WALK_SPEED: float = 1.35
+const WALK_SPEED: float = 0.90
 
 static func root_x_at_frame(tick: int) -> float:
     return -3.35 + float(clampi(tick, 0, FRAMES)) * WALK_SPEED / HZ
@@ -26,6 +27,13 @@ var stance_slip: Array[float] = [0.0, 0.0]
 var max_stance_step: Array[float] = [0.0, 0.0]
 var last_grounded: Array[bool] = [false, false]
 var report_printed: bool = false
+var ik_chains: Array = []
+var ik_targets: Array[Node3D] = []
+var foot_z: Array[float] = [0.0, 0.0]
+var foot_basis: Array[Basis] = [Basis.IDENTITY, Basis.IDENTITY]
+var planted_previous: Array[bool] = [false, false]
+var largest_target_error: float = 0.0
+
 
 
 func _ready() -> void:
@@ -52,6 +60,35 @@ func _ready() -> void:
         return
     walk_player.play("Walk")
     walk_player.pause()
+    walk_player.seek(0.03, true)
+    actor_root.rotation.y = PI * 0.5
+
+    for index in range(2):
+        var label: String = "Left" if index == 0 else "Right"
+        var foot_index: int = skeleton.find_bone(label + "Foot")
+        # Calibrate each boot's sole while that leg is actually weight bearing.
+        # The airborne source frame has a pointed toe, which caused hovering.
+        var grounded_time: float = 0.39 if index == 0 else 0.045
+        walk_player.seek(grounded_time, true)
+        var original: Transform3D = skeleton.global_transform * skeleton.get_bone_global_pose(foot_index)
+        foot_z[index] = original.origin.z
+        foot_basis[index] = original.basis.orthonormalized()
+
+        var target := Node3D.new()
+        target.name = label + "FootWorldTarget"
+        $Stage.add_child(target)
+        ik_targets.append(target)
+        var ik := SkeletonIK3D.new()
+        ik.name = label + "PlantedFootIK"
+        ik.root_bone = label + "UpLeg"
+        ik.tip_bone = label + "Foot"
+        ik.max_iterations = 20
+        ik.min_distance = 0.0005
+        ik.override_tip_basis = true
+        skeleton.add_child(ik)
+        ik.target_node = ik.get_path_to(target)
+        ik_chains.append(ik)
+
     ready_to_render = true
     apply_frame(0)
     print("WALK_5S_READY clip_duration=%.6f speed=%.3f" % [duration, WALK_SPEED])
@@ -64,10 +101,11 @@ func _physics_process(_delta: float) -> void:
         apply_frame(frame + 1)
     if frame == FRAMES and not report_printed:
         report_printed = true
-        print("WALK_5S_QA frames=%d duration=%.2fsec distance=%.3fm cycles=%.3f left_slip=%.3fm right_slip=%.3fm left_samples=%d right_samples=%d max_step=(%.4f,%.4f)" % [
+        print("WALK_5S_QA frames=%d duration=%.2fsec distance=%.3fm cycles=%.3f left_slip=%.3fm right_slip=%.3fm left_samples=%d right_samples=%d max_step=(%.4f,%.4f) target_err=%.4f" % [
             FRAMES, FRAMES / HZ, FRAMES * WALK_SPEED / HZ,
-            (FRAMES / HZ) / duration, stance_slip[0], stance_slip[1],
-            planted_samples[0], planted_samples[1], max_stance_step[0], max_stance_step[1]
+            (FRAMES / HZ) / FootTrack.PERIOD, stance_slip[0], stance_slip[1],
+            planted_samples[0], planted_samples[1], max_stance_step[0], max_stance_step[1],
+            largest_target_error
         ])
 
 
@@ -76,12 +114,24 @@ func apply_frame(tick: int) -> void:
         return
     frame = clampi(tick, 0, FRAMES)
     var seconds: float = float(frame) / HZ
-    var phase_time: float = fmod(seconds, duration)
+    var phase_time: float = fmod(seconds / FootTrack.PERIOD * duration, duration)
     walk_player.seek(phase_time, true)
 
     # Source model walks in its local +Z. Turn the entire rig toward world +X.
     actor_root.rotation.y = PI * 0.5
     actor_root.position = Vector3(root_x_at_frame(frame), 0.0, 0.0)
+
+    # The source has overly long straight-leg kicks. Use real two-bone IK:
+    # feet plant at fixed world coordinates while hip/body moves forward.
+    for index in range(2):
+        var foot: Dictionary = FootTrack.sample(seconds, index, -3.35, WALK_SPEED, foot_z[index])
+        var target_position: Vector3 = foot["position"]
+        var foot_roll: float = deg_to_rad(float(foot["roll_degrees"]))
+        var orient: Basis = Basis(Vector3(0, 0, 1), foot_roll) * foot_basis[index]
+        ik_targets[index].global_transform = Transform3D(orient, target_position)
+        ik_chains[index].start(true)
+
+    skeleton.force_update_all_bone_transforms()
 
     # Dolly camera tracks world displacement; stationary ground markers show real motion.
     camera.position = Vector3(actor_root.position.x + 0.4, 1.43, 5.25)
@@ -94,26 +144,25 @@ func apply_frame(tick: int) -> void:
 
 
 func _measure_feet(tick: int) -> void:
+    var seconds: float = float(tick) / HZ
     for index in range(2):
         var foot_id: String = "LeftFoot" if index == 0 else "RightFoot"
         var bone_index: int = skeleton.find_bone(foot_id)
-        var local_pos: Vector3 = skeleton.get_bone_global_pose(bone_index).origin
-        var world: Vector3 = skeleton.to_global(local_pos)
-        # Ankle bones rest around 0.20m; lower ankle height indicates a planted sole.
-        var grounded: bool = world.y <= 0.217
-        if tick > 0 and grounded and last_grounded[index]:
+        var world: Vector3 = skeleton.to_global(skeleton.get_bone_global_pose(bone_index).origin)
+        var target: Dictionary = FootTrack.sample(seconds, index, -3.35, WALK_SPEED, foot_z[index])
+        largest_target_error = maxf(largest_target_error,
+            world.distance_to(target["position"]))
+        var grounded: bool = bool(target["planted"])
+        if tick > 0 and grounded and planted_previous[index]:
             var horizontal_step: float = Vector2(
                 world.x - last_foot_positions[index].x,
                 world.z - last_foot_positions[index].z
             ).length()
-            # Looped clip seam is excluded from the stance check.
-            var seconds: float = float(tick) / HZ
-            if fmod(seconds, duration) > 0.018:
-                stance_slip[index] += horizontal_step
-                planted_samples[index] += 1
-                max_stance_step[index] = maxf(max_stance_step[index], horizontal_step)
+            stance_slip[index] += horizontal_step
+            planted_samples[index] += 1
+            max_stance_step[index] = maxf(max_stance_step[index], horizontal_step)
         last_foot_positions[index] = world
-        last_grounded[index] = grounded
+        planted_previous[index] = grounded
 
 
 func _build_marked_floor() -> void:
