@@ -159,3 +159,11 @@
 - [Meshy→GLB 검증 및 모델 등록 절차](docs/ASSET_QUALITY_GATE.md)
 - `run-dev.cmd -Mode audit`: 실제 캐릭터와 검이 골격·필수 동작·변형 방지 조건을 만족하는지 검사
 - 검증에는 실제 GLB 파일이 필요하며, 현재 이 저장소에는 포함돼 있지 않습니다.
+
+### 실제 AI 경기 생성·선별·재생
+
+- [경기 자동 생성·하이라이트 추천·정확한 상태 재생](docs/MATCH_SELECTION_REPLAY.md)
+- `run-dev.cmd -Mode batch`: 실제 AI 경기 12개를 시뮬레이션하고 각 경기 상태·승패 JSON 저장
+- `run-dev.cmd -Mode replay`: 추천 경기의 저장된 프레임을 그대로 재생
+- 편집용 점수는 **경기가 끝난 뒤에만** 계산하며 실제 승패·판정을 변경하지 않음
+- 실제 캐릭터 GLB가 없는 한 **그래픽·고품질 영상은 아직 완성되지 않음**
