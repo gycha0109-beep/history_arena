@@ -52,3 +52,17 @@ GitHub에서도 `Actions → Godot 기본 검사` 결과 확인 가능.
 `run-dev.cmd -Mode audit`로 GLB 형식, 필수 애니메이션, 손뼈, 검의 스킨/모프/애니메이션 여부를 먼저 확인하세요. 검사 통과 이후 `run-dev.cmd -Mode preview`와 `run-dev.cmd -Mode record`를 실행합니다. 실제 모델이 없는 경우 검사 실패는 정상입니다.
 
 자세한 내용: [3D 모델 연결 전 검사](ASSET_QUALITY_GATE.md)
+
+## PC 연결이 없어도 구현한 실제 경기 기록 기능
+
+```powershell
+.\run-dev.cmd -Mode batch
+.\run-dev.cmd -Mode batch -Count 20 -FirstSeed 3400
+.\run-dev.cmd -Mode replay
+.\run-dev.cmd -Mode test
+```
+
+- 생성된 경기 목록: `captures/matches/index.json`
+- 각 경기: `captures/matches/match_시드.json`
+- 영상 재생용 3D 캐릭터와 모션은 아직 별도 확보 필요
+- 상세: [AI 경기 선별·재생](MATCH_SELECTION_REPLAY.md)
