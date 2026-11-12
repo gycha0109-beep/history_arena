@@ -5,6 +5,10 @@ const PreviewScene = preload("res://scenes/preview_five_seconds.tscn")
 
 
 func _initialize() -> void:
+    call_deferred("_run_tests")
+
+
+func _run_tests() -> void:
     var timeline = TimelineScript.new()
     var first: Dictionary = timeline.sample(0)
     var approach: Dictionary = timeline.sample(75)
