@@ -23,3 +23,9 @@ GitHub Actions에서 **Godot 4.7.2**를 다운로드하여 위 두 명령을 수
 - Godot 프로젝트 실행 ≠ 전투 시스템 완성
 - 경기 이벤트 기록 ≠ 결정론적 리플레이 완성
 - 품질 검증에는 실제 5초 장면과 사용자 시각 평가가 필수
+
+## 5초 장면 추가 검사
+
+- `godot --headless --path . --script res://tests/five_second_preview.gd`: 300프레임 타이밍·접근·공격·피격·상태 종료 및 실제 GLB 누락 경고
+- **자동 검사에는 실제 모델이 없으므로** 메시 변형/발 접지/고품질 영상 완성도를 검사하지 못합니다.
+- 육안 품질 검사: `run-dev.cmd -Mode preview`, 모델 확보 후 `run-dev.cmd -Mode record`.

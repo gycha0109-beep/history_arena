@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/preview/five_second_preview.gd" id="1_preview"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(16, 0.2, 6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial_ground"]
+albedo_color = Color(0.15, 0.17, 0.2, 1)
+roughness = 0.9
+
+[node name="FiveSecondPreview" type="Node3D"]
+script = ExtResource("1_preview")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9986295, 0.05233596, 0, -0.05233596, 0.9986295, 0, 1.8, 12)
+current = true
+fov = 52.0
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -22, 0)
+light_energy = 1.6
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.12, 0)
+mesh = SubResource("BoxMesh_floor")
+material_override = SubResource("StandardMaterial_ground")
+
+[node name="Actors" type="Node3D" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 1160.0
+offset_bottom = 185.0
+theme_override_font_sizes/font_size = 20
+text = "5초 품질 검증용 장면 · 캐릭터 GLB 연결 대기"

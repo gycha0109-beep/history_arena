@@ -30,3 +30,6 @@ jobs:
 
       - name: 캐릭터 에셋 연결·무기 크기 검사
         run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/asset_pipeline.gd
+
+      - name: 5초 검격 장면 재생 구조 검사
+        run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/five_second_preview.gd
