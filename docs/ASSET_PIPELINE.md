@@ -35,3 +35,12 @@
 ## 에셋 권리 관리
 
 모델·애니메이션·음원마다 원본 URL, 제작자, 라이선스 원문 링크, 상업적 이용·변형·재배포 허용 범위, 취득 날짜를 기록한다. 실존 인물의 초상 및 플랫폼 정책은 별도 검토한다.
+
+## 2026-11-12 연결 코드 반영
+
+- `scripts/visuals/character_visual.gd`: 캐릭터 GLB·모션 로딩 및 논리 전투 위치 반영
+- `scripts/visuals/weapon_socket.gd`: 손뼈 위치·방향만 따르는 **독립된 검 소켓**으로 무기 길이 변화를 차단
+- `assets/characters/*/character.json`: 무사시/이소룡 에셋 연결 설정
+- `tests/asset_pipeline.gd`: 뼈 배율이 변할 때도 검이 늘어나지 않는지 검사
+
+실제 3D GLB가 아직 없으므로 위 기능은 **실제 캐릭터 통합 검증 전**입니다. 자세한 단계와 Meshy 생성 프롬프트: [MESHY_TO_GODOT.md](MESHY_TO_GODOT.md).
