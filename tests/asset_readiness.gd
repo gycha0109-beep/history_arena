@@ -6,6 +6,10 @@ const CharacterVisualScript = preload("res://scripts/visuals/character_visual.gd
 
 
 func _initialize() -> void:
+    call_deferred("_run_tests")
+
+
+func _run_tests() -> void:
     for fighter_id in ["musashi", "bruce_lee"]:
         var character = CharacterVisualScript.new()
         character.name = fighter_id
