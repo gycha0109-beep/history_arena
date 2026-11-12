@@ -15,6 +15,8 @@ const MOVES: Dictionary = {
     "musashi": {
         "quick_cut": {"startup": 10, "active": 5, "recovery": 20, "range": 2.65, "damage": 13, "stun": 16, "cooldown": 8},
         "heavy_cut": {"startup": 21, "active": 5, "recovery": 35, "range": 2.9, "damage": 25, "stun": 26, "cooldown": 15},
+        "wakizashi_cut": {"startup": 8, "active": 4, "recovery": 15, "range": 1.55, "damage": 9, "stun": 13, "cooldown": 5},
+        "dual_cross": {"startup": 19, "active": 6, "recovery": 29, "range": 2.25, "damage": 19, "stun": 22, "cooldown": 12},
     },
     "bruce_lee": {
         "jab": {"startup": 6, "active": 3, "recovery": 11, "range": 1.5, "damage": 7, "stun": 10, "cooldown": 4},
@@ -192,7 +194,7 @@ func _decide_for_fighter(index: int) -> void:
 func _choose_move(fighter, distance: float) -> String:
     var choices: Array[String]
     if fighter.fighter_id == "musashi":
-        choices = ["quick_cut", "heavy_cut"]
+        choices = ["quick_cut", "heavy_cut", "wakizashi_cut", "dual_cross"]
     else:
         choices = ["jab", "side_kick"]
 

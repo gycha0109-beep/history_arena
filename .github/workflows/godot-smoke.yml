@@ -39,3 +39,6 @@ jobs:
 
       - name: 실제 경기 다중 생성·하이라이트 추천·기록 재생 검사
         run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/replay_pipeline.gd
+
+      - name: Dual wield manifest and rigid hands test
+        run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/dual_wield_manifest.gd

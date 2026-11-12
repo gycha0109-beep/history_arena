@@ -16,3 +16,7 @@ Thumbs.db
 
 # Local licensed import test assets (not part of product)
 samples/external/
+
+# Python test caches
+__pycache__/
+*.pyc

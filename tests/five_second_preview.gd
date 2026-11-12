@@ -20,7 +20,7 @@ func _run_tests() -> void:
         _fail("5초 길이 또는 60Hz 설정이 다릅니다.")
         return
 
-    if first["phase"] != "대치" or attack["a"]["move"] != "quick_cut":
+    if first["phase"] != "대치" or attack["a"]["move"] != "dual_cross":
         _fail("시작 대치 또는 검격 구간이 설정과 다릅니다.")
         return
 

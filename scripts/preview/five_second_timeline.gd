@@ -28,7 +28,7 @@ func sample(frame: int) -> Dictionary:
 
     if f >= 105 and f < 156:
         musashi_action = "attack"
-        musashi_move = "quick_cut"
+        musashi_move = "dual_cross"
         phase = "검격"
 
     if f >= 130 and f < 170:

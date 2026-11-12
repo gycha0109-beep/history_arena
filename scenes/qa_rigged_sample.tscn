@@ -24,7 +24,7 @@ script = ExtResource("1_qa")
 environment = SubResource("4_env")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 2.65)
 current = true
 fov = 49.0
 

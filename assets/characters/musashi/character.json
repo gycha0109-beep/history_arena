@@ -1,16 +1,92 @@
 {
   "id": "musashi",
   "model_path": "res://assets/characters/musashi/models/musashi.glb",
-  "weapon_path": "res://assets/weapons/katana.glb",
-  "hand_bone_candidates": ["RightHand", "mixamorig:RightHand", "mixamorig_RightHand", "Hand.R", "hand_r"],
-  "grip_position": [0.0, 0.0, 0.0],
-  "grip_rotation_degrees": [0.0, 0.0, 0.0],
+  "weapons": [
+    {
+      "id": "katana",
+      "hand": "right",
+      "model_path": "res://assets/weapons/katana.glb",
+      "hand_bone_candidates": [
+        "RightHand",
+        "mixamorig:RightHand",
+        "mixamorig_RightHand",
+        "Hand.R",
+        "hand_r"
+      ],
+      "grip_position": [
+        0,
+        0,
+        0
+      ],
+      "grip_rotation_degrees": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "wakizashi",
+      "hand": "left",
+      "model_path": "res://assets/weapons/wakizashi.glb",
+      "hand_bone_candidates": [
+        "LeftHand",
+        "mixamorig:LeftHand",
+        "mixamorig_LeftHand",
+        "Hand.L",
+        "hand_l"
+      ],
+      "grip_position": [
+        0,
+        0,
+        0
+      ],
+      "grip_rotation_degrees": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
   "animation_clips": {
-    "idle": ["Idle", "idle", "Armature|Idle"],
-    "walk": ["Walk", "Walking", "walk", "Armature|Walking"],
-    "attack_light": ["QuickCut", "quick_cut", "Slash"],
-    "attack_heavy": ["HeavyCut", "heavy_cut"],
-    "hit_react": ["HitReact", "hit_react", "Hit"],
-    "ko": ["KO", "ko", "Death"]
+    "idle": [
+      "Idle",
+      "idle",
+      "Armature|Idle"
+    ],
+    "walk": [
+      "Walk",
+      "Walking",
+      "walk",
+      "Armature|Walking"
+    ],
+    "attack_light": [
+      "QuickCut",
+      "quick_cut",
+      "Slash"
+    ],
+    "attack_heavy": [
+      "HeavyCut",
+      "heavy_cut"
+    ],
+    "hit_react": [
+      "HitReact",
+      "hit_react",
+      "Hit"
+    ],
+    "ko": [
+      "KO",
+      "ko",
+      "Death"
+    ],
+    "attack_offhand": [
+      "WakizashiCut",
+      "wakizashi_cut",
+      "OffhandCut"
+    ],
+    "attack_dual": [
+      "DualCross",
+      "dual_cross",
+      "NitenCut"
+    ]
   }
 }
