@@ -56,6 +56,10 @@ if ($Mode -eq 'record') {
             throw "녹화를 중단했습니다. 필수 모델 파일이 없습니다: $required"
         }
     }
+    & $godot --headless --editor --path $root --quit
+    if ($LASTEXITCODE -ne 0) { throw "Godot가 GLB 에셋을 읽어들이지 못했습니다." }
+    & $godot --headless --path $root --script res://tests/asset_readiness.gd
+    if ($LASTEXITCODE -ne 0) { throw "캐릭터 리깅, 모션, 손뼈 또는 검 연결이 불완전하여 녹화를 중단했습니다." }
     $captures = Join-Path $root 'captures'
     New-Item -ItemType Directory -Path $captures -Force | Out-Null
     $avi = Join-Path $captures 'preview_5s.avi'
