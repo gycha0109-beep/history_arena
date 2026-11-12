@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('preview','battle','test','record','audit','batch','replay')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
     [ValidateRange(1,40)]
@@ -67,7 +67,8 @@ if ($Mode -eq 'test') {
         @('--headless','--path',$root,'--script','res://tests/combat_simulation.gd'),
         @('--headless','--path',$root,'--script','res://tests/asset_pipeline.gd'),
         @('--headless','--path',$root,'--script','res://tests/five_second_preview.gd'),
-        @('--headless','--path',$root,'--script','res://tests/replay_pipeline.gd')
+        @('--headless','--path',$root,'--script','res://tests/replay_pipeline.gd'),
+        @('--headless','--path',$root,'--script','res://tests/dual_wield_manifest.gd')
     )
     foreach ($argsArray in $tests) {
         & $godot @argsArray
@@ -100,12 +101,46 @@ if ($Mode -eq 'replay') {
     exit 0
 }
 
+
+if ($Mode -eq 'dualqa') {
+    foreach ($sample in @(
+        'samples\external\CesiumMan.glb',
+        'samples\external\qa_katana_dual.glb',
+        'samples\external\qa_wakizashi_dual.glb'
+    )) {
+        if (-not (Test-Path (Join-Path $root $sample))) {
+            throw "??? ??? ??? ????: $sample. ?? docs/DUAL_WIELD_QA.md? ?????."
+        }
+    }
+    $captureDir = Join-Path $root 'captures\qa'
+    New-Item -ItemType Directory -Path $captureDir -Force | Out-Null
+    & $godot --headless --editor --path $root --quit
+    if ($LASTEXITCODE -ne 0) { throw "Godot ?? ????? ??????." }
+    $avi = Join-Path $captureDir 'dual_wield_final.avi'
+    $mp4 = Join-Path $captureDir 'dual_wield_final.mp4'
+    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/qa_rigged_sample.tscn
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) {
+        throw "??? 5? ?? ??? ??????."
+    }
+    $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if (-not $encoder) { throw "AVI? ????? FFmpeg? ?? ?????: $avi" }
+    & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
+    if ($LASTEXITCODE -ne 0) { throw "MP4 ??? ??????." }
+    & $encoder.Source -hide_banner -loglevel error -y -ss 2.0 -i $mp4 -frames:v 1 (Join-Path $captureDir 'dual_wield_poster.png')
+    if ($LASTEXITCODE -ne 0) { throw "HTML ??? ??? ??? ??????." }
+    Copy-Item -LiteralPath (Join-Path $root 'tools\dual_qa_viewer.html') -Destination (Join-Path $captureDir 'dual_wield_preview.html') -Force
+    Write-Host "??? ??: $mp4"
+    Write-Host ("HTML ????: " + (Join-Path $captureDir 'dual_wield_preview.html'))
+    exit 0
+}
+
 if ($Mode -eq 'record') {
     Invoke-AssetAudit
     foreach ($required in @(
         'assets\characters\musashi\models\musashi.glb',
         'assets\characters\bruce_lee\models\bruce_lee.glb',
-        'assets\weapons\katana.glb'
+        'assets\weapons\katana.glb',
+        'assets\weapons\wakizashi.glb'
     )) {
         if (-not (Test-Path (Join-Path $root $required))) {
             throw "녹화를 중단했습니다. 필수 모델 파일이 없습니다: $required"

@@ -1,16 +1,38 @@
 {
   "id": "bruce_lee",
   "model_path": "res://assets/characters/bruce_lee/models/bruce_lee.glb",
-  "weapon_path": "",
-  "hand_bone_candidates": [],
-  "grip_position": [0.0, 0.0, 0.0],
-  "grip_rotation_degrees": [0.0, 0.0, 0.0],
+  "weapons": [],
   "animation_clips": {
-    "idle": ["Idle", "idle", "Armature|Idle"],
-    "walk": ["Walk", "Walking", "walk", "Armature|Walking"],
-    "attack_light": ["Jab", "jab", "Punch"],
-    "attack_heavy": ["SideKick", "side_kick", "Kick"],
-    "hit_react": ["HitReact", "hit_react", "Hit"],
-    "ko": ["KO", "ko", "Death"]
+    "idle": [
+      "Idle",
+      "idle",
+      "Armature|Idle"
+    ],
+    "walk": [
+      "Walk",
+      "Walking",
+      "walk",
+      "Armature|Walking"
+    ],
+    "attack_light": [
+      "Jab",
+      "jab",
+      "Punch"
+    ],
+    "attack_heavy": [
+      "SideKick",
+      "side_kick",
+      "Kick"
+    ],
+    "hit_react": [
+      "HitReact",
+      "hit_react",
+      "Hit"
+    ],
+    "ko": [
+      "KO",
+      "ko",
+      "Death"
+    ]
   }
 }

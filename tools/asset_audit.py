@@ -148,29 +148,77 @@ def audit_character(manifest_path: Path, root: Path) -> dict[str, Any]:
     if not isinstance(clips, dict):
         errors.append("animation_clips는 동작별 이름 목록이어야 합니다.")
         clips = {}
-    for motion in REQUIRED_MOTIONS:
+    required_motions = REQUIRED_MOTIONS + (("attack_offhand", "attack_dual") if fighter_id == "musashi" else ())
+    for motion in required_motions:
         configured = clips.get(motion, [])
         if not isinstance(configured, list) or not configured:
             errors.append(f"필수 동작 {motion}에 후보 이름이 없습니다.")
         elif not any(str(item) in anims for item in configured):
             errors.append(f"필수 동작 {motion} 미발견. 실제 클립: {', '.join(anims)}")
 
-    hand_names = manifest.get("hand_bone_candidates", [])
-    if not isinstance(hand_names, list):
-        errors.append("hand_bone_candidates는 이름 목록이어야 합니다.")
-        hand_names = []
-    weapon_uri = str(manifest.get("weapon_path", ""))
-    if weapon_uri:
-        if not any(str(name) in bones for name in hand_names):
-            errors.append(f"검을 연결할 손뼈를 찾지 못했습니다. 실제 뼈 이름 예: {', '.join(sorted(bones)[:16])}")
+    # Every Musashi must carry two physically separate swords, one per hand.
+    # A legacy single weapon_path is deliberately not accepted for Musashi.
+    weapon_specs = manifest.get("weapons", [])
+    if not isinstance(weapon_specs, list):
+        errors.append("weapons는 무기 설정 목록이어야 합니다.")
+        weapon_specs = []
+    if fighter_id == "musashi" and len(weapon_specs) != 2:
+        errors.append("무사시는 오른손 장검과 왼손 단검이 모두 필요합니다.")
+
+    report["weapons"] = []
+    attached_hands: set[str] = set()
+    attached_bones: set[str] = set()
+    attached_ids: set[str] = set()
+    for spec in weapon_specs:
+        if not isinstance(spec, dict):
+            errors.append("무기 설정은 JSON 객체여야 합니다.")
+            continue
+        weapon_id = str(spec.get("id", "unknown"))
+        hand = str(spec.get("hand", ""))
+        if hand not in ("left", "right") or hand in attached_hands:
+            errors.append(f"{weapon_id}: 장착 손이 없거나 중복입니다.")
+        attached_hands.add(hand)
+        if weapon_id in attached_ids:
+            errors.append(f"{weapon_id}: 같은 검이 중복 지정됐습니다.")
+        attached_ids.add(weapon_id)
+
+        hand_names = spec.get("hand_bone_candidates", [])
+        if not isinstance(hand_names, list) or not hand_names:
+            errors.append(f"{weapon_id}: 손뼈 이름 후보가 없습니다.")
+            hand_names = []
+        matched_bone = next((str(name) for name in hand_names if str(name) in bones), None)
+        if matched_bone is None:
+            errors.append(f"{weapon_id}: 손뼈를 찾지 못했습니다. 실제 뼈 이름 예: {', '.join(sorted(bones)[:16])}")
+        elif matched_bone in attached_bones:
+            errors.append(f"{weapon_id}: 두 검이 같은 손뼈에 연결됩니다.")
+        if matched_bone:
+            attached_bones.add(matched_bone)
+
+        for setting in ("grip_position", "grip_rotation_degrees"):
+            coords = spec.get(setting)
+            if not isinstance(coords, list) or len(coords) != 3 or any(
+                not isinstance(v, (int, float)) for v in coords
+            ):
+                errors.append(f"{weapon_id}: {setting}은 숫자 세 개여야 합니다.")
+
+        weapon_uri = str(spec.get("model_path", ""))
         if not weapon_uri.startswith("res://") or not weapon_uri.lower().endswith(".glb"):
-            errors.append("weapon_path는 res://로 시작하는 GLB 경로여야 합니다.")
-        else:
-            weapon_path = root / weapon_uri.removeprefix("res://")
-            weapon_report = audit_weapon(weapon_path)
-            report["weapon"] = weapon_report
-            errors.extend(weapon_report["errors"])
-            warnings.extend(weapon_report["warnings"])
+            errors.append(f"{weapon_id}: 무기 GLB 경로가 잘못됐습니다.")
+            continue
+        weapon_report = audit_weapon(root / weapon_uri.removeprefix("res://"))
+        weapon_report["id"] = weapon_id
+        weapon_report["hand"] = hand
+        report["weapons"].append(weapon_report)
+        errors.extend(weapon_report["errors"])
+        warnings.extend(weapon_report["warnings"])
+
+    if fighter_id == "musashi":
+        if attached_hands != {"left", "right"}:
+            errors.append("이도류는 오른손과 왼손에 각각 하나의 검이 있어야 합니다.")
+        if attached_ids != {"katana", "wakizashi"}:
+            errors.append("무사시의 무기는 장검 katana와 단검 wakizashi여야 합니다.")
+        if not any("finger" in name.lower() or "thumb" in name.lower() for name in bones):
+            warnings.append("손가락 관절이 없습니다. 잡는 자세는 임시 형상으로만 표현됩니다.")
 
     if _triangle_estimate(doc) > 180_000:
         warnings.append("삼각형이 18만 개 이상입니다. GTX 1070 실시간 화면 성능을 측정하세요.")

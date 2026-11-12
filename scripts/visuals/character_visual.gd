@@ -11,7 +11,7 @@ var manifest: Dictionary = {}
 var model_root: Node3D
 var skeleton: Skeleton3D
 var animation_player: AnimationPlayer
-var weapon_socket
+var weapon_sockets: Array = []
 var animation_state: String = ""
 var previous_x: float = 0.0
 var has_previous_position: bool = false
@@ -56,12 +56,14 @@ func load_manifest(manifest_path: String) -> bool:
         status_message = "%s: AnimationPlayer가 없습니다. 모션이 필요합니다." % fighter_id
         return false
 
-    var weapon_path: String = str(manifest.get("weapon_path", ""))
-    if not weapon_path.is_empty() and not _attach_weapon(weapon_path):
+    if not _attach_weapons():
         return false
 
     var missing_clips: Array[String] = []
-    for required in ["idle", "walk", "attack_light", "hit_react"]:
+    var required_motions: Array[String] = ["idle", "walk", "attack_light", "hit_react"]
+    if fighter_id == "musashi":
+        required_motions.append_array(["attack_offhand", "attack_dual"])
+    for required in required_motions:
         if not _has_clip(required):
             missing_clips.append(required)
     if not missing_clips.is_empty():
@@ -73,42 +75,77 @@ func load_manifest(manifest_path: String) -> bool:
     return true
 
 
-func _attach_weapon(weapon_path: String) -> bool:
-    if not ResourceLoader.exists(weapon_path):
-        status_message = "%s: 별도 무기 GLB가 없습니다." % fighter_id
+func _attach_weapons() -> bool:
+    weapon_sockets.clear()
+    var specs: Variant = manifest.get("weapons", [])
+    if typeof(specs) != TYPE_ARRAY:
+        status_message = "%s: weapons는 무기 목록이어야 합니다." % fighter_id
+        return false
+    if fighter_id == "musashi" and specs.size() != 2:
+        status_message = "무사시는 오른손 장검과 왼손 단검이 모두 필요합니다."
         return false
 
-    var weapon_scene: PackedScene = load(weapon_path) as PackedScene
-    if weapon_scene == null:
-        status_message = "%s: 무기 GLB를 읽지 못했습니다." % fighter_id
-        return false
+    var attached_bones: Dictionary = {}
+    var attached_hands: Dictionary = {}
+    for entry in specs:
+        if typeof(entry) != TYPE_DICTIONARY:
+            status_message = "%s: 무기 설정은 객체여야 합니다." % fighter_id
+            return false
+        var weapon_config: Dictionary = entry
+        var weapon_id: String = str(weapon_config.get("id", "unknown"))
+        var handedness: String = str(weapon_config.get("hand", ""))
+        if handedness not in ["left", "right"] or attached_hands.has(handedness):
+            status_message = "%s: %s 무기의 장착 손이 없거나 중복입니다." % [fighter_id, weapon_id]
+            return false
+        var weapon_path: String = str(weapon_config.get("model_path", ""))
+        if not weapon_path.begins_with("res://") or not ResourceLoader.exists(weapon_path):
+            status_message = "%s: %s 별도 GLB 미등록" % [fighter_id, weapon_id]
+            return false
+        var bone_candidates: Variant = weapon_config.get("hand_bone_candidates", [])
+        if typeof(bone_candidates) != TYPE_ARRAY or bone_candidates.is_empty():
+            status_message = "%s: %s의 손뼈 후보가 없습니다." % [fighter_id, weapon_id]
+            return false
+        var sword_scene: PackedScene = load(weapon_path) as PackedScene
+        if sword_scene == null:
+            status_message = "%s: %s 무기 모델을 읽지 못했습니다." % [fighter_id, weapon_id]
+            return false
 
-    var bone_candidates: Array = manifest.get("hand_bone_candidates", [])
-    if bone_candidates.is_empty():
-        status_message = "%s: 손뼈 후보가 설정되지 않았습니다." % fighter_id
-        return false
+        var socket = WeaponSocketScript.new()
+        socket.name = "Grip_%s_%s" % [handedness, weapon_id]
+        add_child(socket)
+        if not socket.bind_to_skeleton(skeleton, bone_candidates):
+            status_message = "%s: %s 손뼈를 찾을 수 없습니다." % [fighter_id, weapon_id]
+            return false
+        if attached_bones.has(socket.bone_index):
+            status_message = "%s: 두 자루의 검이 같은 손뼈에 연결됐습니다." % fighter_id
+            return false
+        attached_bones[socket.bone_index] = true
+        attached_hands[handedness] = true
 
-    weapon_socket = WeaponSocketScript.new()
-    weapon_socket.name = "RigidWeaponSocket"
-    add_child(weapon_socket)
-    if not weapon_socket.bind_to_skeleton(skeleton, bone_candidates):
-        status_message = "%s: 손뼈 이름이 다릅니다. 모델 골격을 확인하세요." % fighter_id
-        return false
+        var weapon_instance: Node = sword_scene.instantiate()
+        if not weapon_instance is Node3D:
+            weapon_instance.free()
+            status_message = "%s: %s 검 모델 루트가 3D가 아닙니다." % [fighter_id, weapon_id]
+            return false
+        socket.add_child(weapon_instance)
 
-    var weapon_root: Node = weapon_scene.instantiate()
-    if not weapon_root is Node3D:
-        weapon_root.free()
-        status_message = "%s: 무기 루트가 3D 노드가 아닙니다." % fighter_id
-        return false
+        var offset: Variant = weapon_config.get("grip_position", [0.0, 0.0, 0.0])
+        var angles: Variant = weapon_config.get("grip_rotation_degrees", [0.0, 0.0, 0.0])
+        if typeof(offset) != TYPE_ARRAY or typeof(angles) != TYPE_ARRAY:
+            status_message = "%s: %s 손잡이 설정 형식 오류" % [fighter_id, weapon_id]
+            return false
+        if offset.size() != 3 or angles.size() != 3:
+            status_message = "%s: %s 손잡이 좌표는 숫자 세 개여야 합니다." % [fighter_id, weapon_id]
+            return false
+        var grip: Node3D = weapon_instance as Node3D
+        grip.position = Vector3(float(offset[0]), float(offset[1]), float(offset[2]))
+        grip.rotation_degrees = Vector3(float(angles[0]), float(angles[1]), float(angles[2]))
+        grip.scale = Vector3.ONE
+        weapon_sockets.append(socket)
 
-    weapon_socket.add_child(weapon_root)
-    var offset: Array = manifest.get("grip_position", [0.0, 0.0, 0.0])
-    var angles: Array = manifest.get("grip_rotation_degrees", [0.0, 0.0, 0.0])
-    if offset.size() != 3 or angles.size() != 3:
-        status_message = "%s: 무기 손잡이 위치·회전 값은 숫자 3개여야 합니다." % fighter_id
+    if fighter_id == "musashi" and not (attached_hands.has("right") and attached_hands.has("left")):
+        status_message = "이도류는 두 손에 각각 한 자루씩 장착해야 합니다."
         return false
-    (weapon_root as Node3D).position = Vector3(float(offset[0]), float(offset[1]), float(offset[2]))
-    (weapon_root as Node3D).rotation_degrees = Vector3(float(angles[0]), float(angles[1]), float(angles[2]))
     return true
 
 
@@ -146,6 +183,10 @@ func _map_attack(move_name: String) -> String:
             return "attack_light"
         "heavy_cut", "side_kick":
             return "attack_heavy"
+        "wakizashi_cut":
+            return "attack_offhand"
+        "dual_cross":
+            return "attack_dual"
         _:
             return "idle"
 
