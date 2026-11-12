@@ -153,3 +153,9 @@
 - `run-dev.cmd -Mode test`: 모든 Godot 자동 검사
 - `run-dev.cmd -Mode record`: 실제 GLB 모델 확보 후 5초 영상 출력 시도
 - **실제 3D 모델과 애니메이션은 아직 미확보**이므로 고품질 영상 제작 완료 상태는 아닙니다.
+
+### 실제 GLB 모델 검사
+
+- [Meshy→GLB 검증 및 모델 등록 절차](docs/ASSET_QUALITY_GATE.md)
+- `run-dev.cmd -Mode audit`: 실제 캐릭터와 검이 골격·필수 동작·변형 방지 조건을 만족하는지 검사
+- 검증에는 실제 GLB 파일이 필요하며, 현재 이 저장소에는 포함돼 있지 않습니다.

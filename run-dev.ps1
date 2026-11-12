@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('preview','battle','test','record')]
+    [ValidateSet('preview','battle','test','record','audit')]
     [string]$Mode = 'preview',
     [string]$GodotPath = ''
 )
@@ -25,6 +25,29 @@ function Resolve-Godot {
     throw "Godot 실행 파일을 찾지 못했습니다. Godot 4.7.2 Standard를 설치하고 PATH에 등록하거나 -GodotPath로 위치를 지정하세요."
 }
 
+function Invoke-AssetAudit {
+    $checker = Join-Path $root 'tools\asset_audit.py'
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if ($python) {
+        & $python.Source $checker --root $root
+    } else {
+        $launcher = Get-Command py -ErrorAction SilentlyContinue
+        if (-not $launcher) {
+            throw "Python 설치를 찾지 못했습니다. 모델 검사에는 Python 3이 필요합니다."
+        }
+        & $launcher.Source -3 $checker --root $root
+    }
+    if ($LASTEXITCODE -ne 0) {
+        throw "3D 모델·뼈·필수 모션·검 품질 검사가 실패했습니다. 위 오류를 수정하세요."
+    }
+}
+
+if ($Mode -eq 'audit') {
+    Invoke-AssetAudit
+    Write-Host "모델·모션 구조 검사 통과"
+    exit 0
+}
+
 $godot = Resolve-Godot
 Write-Host "프로젝트: $root"
 Write-Host "Godot: $godot"
@@ -47,6 +70,7 @@ if ($Mode -eq 'test') {
 }
 
 if ($Mode -eq 'record') {
+    Invoke-AssetAudit
     foreach ($required in @(
         'assets\characters\musashi\models\musashi.glb',
         'assets\characters\bruce_lee\models\bruce_lee.glb',

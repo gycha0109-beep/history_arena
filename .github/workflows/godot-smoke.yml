@@ -19,6 +19,9 @@ jobs:
           unzip -q godot.zip
           chmod +x Godot_v4.7.2-stable_linux.x86_64
 
+      - name: 3D 모델·모션·검 구조 검사 도구 시험
+        run: python -m unittest discover -s tools/tests -p 'test_*.py' -v
+
       - name: 프로젝트 불러오기
         run: ./Godot_v4.7.2-stable_linux.x86_64 --headless --editor --path . --quit
 

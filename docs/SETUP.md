@@ -46,3 +46,9 @@ GitHub에서도 `Actions → Godot 기본 검사` 결과 확인 가능.
 - 녹화는 `musashi.glb`, `bruce_lee.glb`, `katana.glb`가 있는 경우에만 시작
 - 프로젝트의 기존 로컬 파일이 있다면 `git status`로 수정 사항을 보존하고 원격 최신본을 병합할 것
 - 상세: [5초 장면 실행 지침](FIVE_SECOND_PREVIEW.md)
+
+## 3D 모델을 받았을 때
+
+`run-dev.cmd -Mode audit`로 GLB 형식, 필수 애니메이션, 손뼈, 검의 스킨/모프/애니메이션 여부를 먼저 확인하세요. 검사 통과 이후 `run-dev.cmd -Mode preview`와 `run-dev.cmd -Mode record`를 실행합니다. 실제 모델이 없는 경우 검사 실패는 정상입니다.
+
+자세한 내용: [3D 모델 연결 전 검사](ASSET_QUALITY_GATE.md)

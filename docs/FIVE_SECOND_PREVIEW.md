@@ -63,3 +63,7 @@ assets/weapons/katana.glb
 - 모델·모션·음원 및 실존 인물의 이용 권한
 
 **금지:** GLB가 없는 상태의 빈 무대나 모델 누락 경고를 완성된 전투 영상이라고 소개하지 않는다.
+
+## 녹화 전 추가 검사
+
+`run-dev.cmd -Mode record` 명령은 GLB 파일뿐 아니라 `tools/asset_audit.py`를 통해 리깅·기본 동작·손뼈·검의 정적 모델 여부를 확인하고, Godot에서도 실제 모션 연결 검증이 통과한 경우에만 영상을 출력합니다. 별도 구조 검사: `run-dev.cmd -Mode audit`. [검사 설명](ASSET_QUALITY_GATE.md).
