@@ -1,11 +1,11 @@
 extends Node3D
-## Independent visual comparison only. Uses a captured mocap walking clip.
-## No scripted foot IK, fake foot track, or forced joint rotations.
-const SOURCE_FILE: String = "res://samples/external/soldier_walk_composite.glb"
-const WALK_CLIP: String = "mocap_walk_composite"
+## Whole-body CC0 reference only: authored arms/torso/legs in a single Walk clip.
+## No foot IK, layered arm animations or scripted joint rotations.
+const SOURCE_FILE: String = "res://samples/external/kinemiq_full_body_walks.glb"
+const WALK_CLIP: String = "Walk_forwards"
 const FPS: float = 60.0
 const FRAME_LIMIT: int = 300
-const MOTION_SPEED: float = 1.1733
+const MOTION_SPEED: float = 1.043
 
 @onready var actor_root: Node3D = $Actor
 @onready var camera: Camera3D = $Camera3D
@@ -45,14 +45,14 @@ func _ready() -> void:
     qa_ready = true
     apply_frame(0)
     first_position = actor_root.global_position
-    print("MOCAP_READY clip=", WALK_CLIP," length=",clip_seconds," floor=",floor_offset)
+    print("FULLBODY_READY clip=", WALK_CLIP," length=",clip_seconds," floor=",floor_offset)
 
 
 func _physics_process(_delta: float) -> void:
     if qa_ready and frame < FRAME_LIMIT:
         apply_frame(frame+1)
         if frame == FRAME_LIMIT:
-            print("MOCAP_WALK_DONE frames=300 distance=", MOTION_SPEED*5.0)
+            print("FULLBODY_WALK_DONE frames=300 distance=", MOTION_SPEED*5.0)
 
 
 func apply_frame(tick: int) -> void:
@@ -62,30 +62,25 @@ func apply_frame(tick: int) -> void:
     actor_root.position = Vector3(-2.95 + seconds*MOTION_SPEED, -floor_offset,0)
     camera.position = Vector3(actor_root.position.x+0.45,1.50,5.6)
     camera.look_at(Vector3(actor_root.position.x+0.36,0.95,0),Vector3.UP)
-    status_label.text = "5초 실제 걷기·상체·왼발 보정 비교\n%.2f초 / 5.00초 · 이동 %.2fm\n임시 군인 모델 · 무사시 최종 캐릭터 아님" % [
+    status_label.text = "5초 실제 모션캡처 보행 비교\n%.2f초 / 5.00초 · 이동 %.2fm\n임시 군인 모델 · 무사시 최종 캐릭터 아님" % [
         seconds,seconds*MOTION_SPEED
     ]
 
 
 func _feet_min_global_y() -> float:
-    # Calibrate using BOTH toes over one complete authored walking cycle.
-    # The old first-frame ankle-minus-11cm estimate buried the shoe toes
-    # ~2–3cm inside the floor, producing the apparent left-foot snag.
     var heights: Array[float] = []
-    for sample in range(121):
-        player.seek(minf(float(sample) / 120.0 * clip_seconds, clip_seconds - 0.00001), true)
-        for id in ["mixamorig_LeftToeBase", "mixamorig_RightToeBase"]:
-            var index: int = skeleton.find_bone(id)
-            if index >= 0:
-                heights.append(skeleton.to_global(
-                    skeleton.get_bone_global_pose(index).origin).y)
-    player.seek(0.0, true)
+    for tick in range(121):
+        player.seek(float(tick) / 120.0 * clip_seconds, true)
+        for id in ["ball_l", "ball_r"]:
+            var bone_index: int = skeleton.find_bone(id)
+            if bone_index >= 0:
+                heights.append(skeleton.to_global(skeleton.get_bone_global_pose(bone_index).origin).y)
+    player.seek(0.0,true)
     if heights.is_empty():
         return 0.0
     heights.sort()
-    var ground_reference: float = heights[int(heights.size() * 0.08)]
-    print("GROUND_REFERENCE_TOE_Y=", ground_reference)
-    return ground_reference - 0.008
+    print("KINEMIQ_GROUND_BALL_Y=",heights[12])
+    return heights[12] - 0.11
 
 
 func _build_marked_floor() -> void:

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레전더리 배틀 | 전신 보행 5초 품질 비교</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#0b111c;color:#f3f7ff;font:15px/1.6 system-ui,"Malgun Gothic",sans-serif}
+main{max-width:1150px;margin:auto;padding:24px}h1{font-size:24px;margin:0 0 8px}p{color:#aabbd0}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:#141f2e;border:1px solid #35465c;border-radius:12px;padding:16px}
+h2{font-size:17px;margin:0 0 12px}
+video{display:block;width:100%;max-height:640px;aspect-ratio:9/16;object-fit:contain;background:#080c14;border-radius:8px}
+nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0}
+button{color:white;background:#26466c;border:1px solid #557daf;border-radius:7px;padding:10px 15px;cursor:pointer}
+input[type=range]{flex:1;min-width:130px}small{color:#a2b3c7}
+@media(max-width:720px){.layout{grid-template-columns:1fr}main{padding:12px}}
+</style></head><body><main>
+<h1>5초 보행 · 기존 실패본과 전신 보행 후보</h1>
+<p>이번에는 전신을 하나의 걷기 모션으로 재생했습니다. <strong>모델 자체가 다르므로 캐릭터 외형이 아닌 걷기 품질을 비교</strong>해 주세요.</p>
+<div class="layout">
+<section class="panel">
+<h2>이전 실패본 (군인 모델)</h2>
+<video id="old" controls playsinline muted loop preload="metadata" src="mocap_5s_reworked.mp4"></video>
+<p>서로 다른 상체와 하체 움직임을 억지로 결합한 영상. 왼발 걸림과 팔의 순간적인 움직임이 남았습니다.</p>
+</section>
+<section class="panel">
+<h2>새 전신 보행 기준 (CC0 인체)</h2>
+<video id="new" controls playsinline muted loop preload="metadata" poster="fullbody_walk_poster.jpg" src="fullbody_walk_5s.mp4"></video>
+<p>67개 원본 전신 항목을 하나의 동작으로 재생. 실제 보폭을 추출한 이동을 사용하고 임의의 발목·팔 회전을 추가하지 않았습니다.</p>
+</section>
+</div>
+<nav>
+<button id="toggle">두 영상 동시 재생 / 정지</button>
+<button id="restart">처음부터</button>
+<button id="prev">-1프레임</button>
+<button id="next">+1프레임</button>
+<input id="slider" type="range" min="0" max="300" step="1" value="0">
+<output id="time">0 / 300</output>
+</nav>
+<small>검증용 모델이며, 최종 무사시 캐릭터나 이도류 검술 모션은 아닙니다. 신규 검증 결과는 지지 발 접지 중 최대 위치 변화 약 0.4mm, 팔 프레임별 최대 회전 약 2.64도, 5초 실제 이동 약 5.215m입니다.</small>
+</main><script>
+const a=document.getElementById("old"),b=document.getElementById("new"),slider=document.getElementById("slider"),output=document.getElementById("time");
+const seek=n=>{const f=Math.max(0,Math.min(300,n));a.pause();b.pause();a.currentTime=f/60;b.currentTime=f/60;slider.value=String(f);output.value=f+" / 300";};
+document.getElementById("toggle").onclick=async()=>{if(a.paused){b.currentTime=a.currentTime;await Promise.allSettled([a.play(),b.play()]);}else{a.pause();b.pause();}};
+document.getElementById("restart").onclick=()=>seek(0);
+document.getElementById("prev").onclick=()=>seek(Number(slider.value)-1);
+document.getElementById("next").onclick=()=>seek(Number(slider.value)+1);
+slider.oninput=()=>seek(Number(slider.value));
+b.ontimeupdate=()=>{if(!b.paused){const n=Math.min(300,Math.floor(b.currentTime*60));slider.value=String(n);output.value=n+" / 300";}};
+</script></body></html>

@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa','mocapfix')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa','fullwalk')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
     [ValidateRange(1,40)]
@@ -106,35 +106,38 @@ if ($Mode -eq 'replay') {
 
 
 
-if ($Mode -eq 'mocapfix') {
+
+if ($Mode -eq 'fullwalk') {
     $python = Get-Command python -ErrorAction SilentlyContinue
-    if (-not $python) { throw "?? ???? Python 3? ?????." }
-    & $python.Source (Join-Path $root 'tools\fetch_mocap_reference.py')
-    if ($LASTEXITCODE -ne 0) { throw "???? ?? ????/?? ??" }
-    & $python.Source (Join-Path $root 'tools\author_mocap_composite.py')
-    if ($LASTEXITCODE -ne 0) { throw "?/?? ????? ?? ??" }
+    if (-not $python) { throw "?? ?? ?? ??? Python 3? ?????." }
+    & $python.Source (Join-Path $root 'tools\fetch_consistent_walk_reference.py')
+    if ($LASTEXITCODE -ne 0) { throw "CC0 ?? ?? ?? ??/????? ??????." }
+    & $python.Source (Join-Path $root 'tools\build_consistent_walk_reference.py')
+    if ($LASTEXITCODE -ne 0) { throw "?? ??? ??? ??? ??????." }
     & $godot --headless --editor --path $root --quit
-    if ($LASTEXITCODE -ne 0) { throw "? 3D ??? Godot? ???? ?????." }
-    & $godot --headless --path $root --script res://tests/mocap_reworked_local.gd
-    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ??/? ??? ?? ??" }
-    $output = Join-Path $root 'captures\walk'
-    New-Item -ItemType Directory -Path $output -Force | Out-Null
-    $avi = Join-Path $output 'mocap_5s_reworked.avi'
-    $mp4 = Join-Path $output 'mocap_5s_reworked.mp4'
-    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/mocap_5s_reworked.tscn
-    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "5? ?? ?? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "Godot GLB ????? ??????." }
+    & $godot --headless --path $root --script res://tests/fullbody_walk_local.gd
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ?? ??? ??? ??????." }
+    $outDir = Join-Path $root 'captures\walk'
+    New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+    $avi = Join-Path $outDir 'fullbody_walk_5s.avi'
+    $mp4 = Join-Path $outDir 'fullbody_walk_5s.mp4'
+    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/fullbody_walk_5s.tscn
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "5? ?? ?? ?? ?? ??" }
     $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
-    if (-not $encoder) { throw "FFmpeg? ?? MP4 ??? ??: $avi" }
+    if (-not $encoder) { throw "FFmpeg? ???? ?????: $avi" }
     & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
-    if ($LASTEXITCODE -ne 0) { throw "MP4 ??? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "5? ?? MP4 ?? ??" }
+    & $encoder.Source -hide_banner -loglevel error -y -ss 2.0 -i $mp4 -frames:v 1 (Join-Path $outDir 'fullbody_walk_poster.jpg')
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ??" }
     Remove-Item -LiteralPath $avi -Force
-    Copy-Item -LiteralPath (Join-Path $root 'tools\mocap_reworked_viewer.html') -Destination (Join-Path $output 'compare_reworked.html') -Force
-    if (-not (Test-Path (Join-Path $output 'mocap_5s_compare.mp4'))) {
-        Write-Warning "??? ?? ??? ????. ??? -Mode mocapqa? ??? ? ????."
+    Copy-Item -LiteralPath (Join-Path $root 'tools\fullbody_walk_viewer.html') -Destination (Join-Path $outDir 'compare_fullbody.html') -Force
+    if (-not (Test-Path (Join-Path $outDir 'mocap_5s_reworked.mp4'))) {
+        Write-Warning "?? ??? ??? ????. ? 5? ??? ?? ??? ? ????."
     }
-    Write-Host ("??/?? ?? 5? ??: " + $mp4)
-    Write-Host ("?? ?? HTML: " + (Join-Path $output 'compare_reworked.html'))
-    Write-Warning "?? ?? ??? ?? ????? ?? ?? ??? ??? ??? ??? ?? ?? ??? ?????."
+    Write-Host ("?? ?? ??: " + $mp4)
+    Write-Host ("?? ?? HTML: " + (Join-Path $outDir 'compare_fullbody.html'))
+    Write-Warning "? ??? CC0 ?? ????? ??? ?? ??? ??? ????."
     exit 0
 }
 
