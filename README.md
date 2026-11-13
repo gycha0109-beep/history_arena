@@ -185,6 +185,15 @@
 
 [시각 품질 회복 작업 지시서](docs/ANIMATION_QUALITY_RECOVERY_PLAN.md)
 
+### 2026-11-13 — 양손 검을 든 5초 전투 보행 검증
+
+- 오른손 장검 + 왼손 단검을 각각 손가락 관절이 있는 손에 연결하고, 기존 5초 전신 보행의 발 동작을 그대로 유지했습니다.
+- 독립된 두 검은 가짜 손 메시 없이 제작하며, 몸통을 향하지 않도록 배치했습니다.
+- **재실행:** `run-dev.cmd -Mode dualwalkqa`
+- **HTML 확인:** `D:\cha\History_arena\captures\qa\dual_guard_walk_preview.html`
+- **제작 한계:** 아직 고품질 무사시 외형과 전용 검술 동작이 없습니다. [검증 내용](docs/DUAL_GUARD_WALK_QA.md)
+
+
 ## 5? ?? ?? ?? (2026-11-12)
 
 - [5? ?? ?? ?? ??? ?? ????](docs/FIVE_SECOND_WALK_QA.md)

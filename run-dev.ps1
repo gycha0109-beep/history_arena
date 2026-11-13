@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa','fullwalk')]
+    [ValidateSet('preview','battle','test','record','audit','batch','replay','dualqa','walkqa','mocapqa','fullwalk','dualwalkqa')]
     [string]$Mode = 'preview',
     [string]$GodotPath = '',
     [ValidateRange(1,40)]
@@ -106,6 +106,71 @@ if ($Mode -eq 'replay') {
 
 
 
+
+
+if ($Mode -eq 'dualwalkqa') {
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $python) { throw "?? ? ?? ??? Python 3? ?????." }
+    & $python.Source (Join-Path $root 'tools\fetch_consistent_walk_reference.py')
+    if ($LASTEXITCODE -ne 0) { throw "CC0 ?? ?? ????/?? ??" }
+    & $python.Source (Join-Path $root 'tools\build_consistent_walk_reference.py')
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ?? ??" }
+    & $python.Source (Join-Path $root 'tools\bake_dual_guard_walk.py')
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ?? ??" }
+
+    $blender = Get-Command blender -ErrorAction SilentlyContinue
+    $blenderPath = if ($blender) { $blender.Source } else { '' }
+    if (-not $blenderPath) {
+        $candidate = 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
+        if (Test-Path $candidate) { $blenderPath = $candidate }
+    }
+    if (-not $blenderPath) { throw "Blender? ?? ?????. Blender 5.2 LTS? ??? ???." }
+    $katana = Join-Path $root 'samples\external\qa_katana_dual.glb'
+    $wakizashi = Join-Path $root 'samples\external\qa_wakizashi_dual.glb'
+    if (-not (Test-Path $katana) -or -not (Test-Path $wakizashi)) {
+        & $blenderPath --background --python (Join-Path $root 'tools\build_dual_qa_swords.py')
+        if ($LASTEXITCODE -ne 0) { throw "? ? ??? ?? ?? ?? ??" }
+    }
+    & $blenderPath --background --python (Join-Path $root 'tools\make_rigid_qa_swords.py')
+    if ($LASTEXITCODE -ne 0) { throw "?? ? ??? ?? ??? ? ?? ??" }
+
+    & $godot --headless --editor --path $root --quit
+    if ($LASTEXITCODE -ne 0) { throw "Godot ?? 3D ?? ???? ??" }
+    & $godot --headless --path $root --script res://tests/dual_guard_walk_local.gd
+    if ($LASTEXITCODE -ne 0) { throw "?? ???? ????? ?? ??" }
+
+    $captureDir = Join-Path $root 'captures\qa'
+    New-Item -ItemType Directory -Path $captureDir -Force | Out-Null
+    $avi = Join-Path $captureDir 'dual_guard_walk_5s.avi'
+    $mp4 = Join-Path $captureDir 'dual_guard_walk_5s.mp4'
+    & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/dual_guard_walk_5s.tscn
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "?? ? 5? ?? ?? ??" }
+    $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if (-not $encoder) { throw "FFmpeg ???. AVI? ???: $avi" }
+    & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
+    if ($LASTEXITCODE -ne 0) { throw "MP4 ?? ??" }
+    & $encoder.Source -hide_banner -loglevel error -y -ss 2 -i $mp4 -frames:v 1 (Join-Path $captureDir 'dual_guard_walk_poster.jpg')
+    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ??" }
+    & $encoder.Source -hide_banner -loglevel error -y -ss 2 -i $mp4 -vf 'crop=300:260:265:400,scale=900:780' -frames:v 1 (Join-Path $captureDir 'dual_guard_hand_closeup.png')
+    if ($LASTEXITCODE -ne 0) { throw "??? ?? ??? ?? ??" }
+    Remove-Item -LiteralPath $avi -Force
+    $baselineDir = Join-Path $root 'captures\walk'
+    $baselineMp4 = Join-Path $baselineDir 'fullbody_walk_5s.mp4'
+    if (-not (Test-Path $baselineMp4)) {
+        New-Item -ItemType Directory -Path $baselineDir -Force | Out-Null
+        $baselineAvi = Join-Path $baselineDir 'fullbody_walk_5s.avi'
+        & $godot --path $root --fixed-fps 60 --write-movie $baselineAvi --quit-after 300 res://scenes/fullbody_walk_5s.tscn
+        if ($LASTEXITCODE -ne 0) { throw "Original walk reference recording failed" }
+        & $encoder.Source -hide_banner -loglevel error -y -i $baselineAvi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $baselineMp4
+        if ($LASTEXITCODE -ne 0) { throw "Original walk reference encoding failed" }
+        Remove-Item -LiteralPath $baselineAvi -Force
+    }
+    Copy-Item -LiteralPath (Join-Path $root 'tools\dual_guard_walk_viewer.html') -Destination (Join-Path $captureDir 'dual_guard_walk_preview.html') -Force
+    Write-Host ("5? ?? ? ??: " + $mp4)
+    Write-Host ("HTML ????: " + (Join-Path $captureDir 'dual_guard_walk_preview.html'))
+    Write-Warning "?? ??? ?? ???? ??? ?? ??? CC0 ?????."
+    exit 0
+}
 
 if ($Mode -eq 'fullwalk') {
     $python = Get-Command python -ErrorAction SilentlyContinue
