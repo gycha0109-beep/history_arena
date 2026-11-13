@@ -1,0 +1,8 @@
+ffconcat version 1.0
+file '../captures/qa/dual_grip_guard_v5/dual_guard_three_quarter.png'
+duration 1.6666667
+file '../captures/qa/dual_grip_guard_v5/dual_guard_front.png'
+duration 1.6666667
+file '../captures/qa/dual_grip_guard_v5/dual_guard_side.png'
+duration 1.6666666
+file '../captures/qa/dual_grip_guard_v5/dual_guard_side.png'

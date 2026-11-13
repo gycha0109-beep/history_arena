@@ -1,0 +1,65 @@
+{
+  "source": "KinemIQ CC0 bone hand_l, static authored sword idle",
+  "no_animation_tracks_changed": true,
+  "no_fake_hand_mesh": true,
+  "sword_scale_fixed": true,
+  "handle_radius_m": 0.0185,
+  "axis_blender": [
+    -0.2600570023059845,
+    -0.9520121216773987,
+    0.16137966513633728
+  ],
+  "center_blender": [
+    0.33056312799453735,
+    -0.07619658857584,
+    0.8552712798118591
+  ],
+  "bone_pose_to_sword_blender_matrix": [
+    [
+      -0.9998115301132202,
+      0.012993216514587402,
+      0.01445738598704338,
+      0.03342793881893158
+    ],
+    [
+      -0.009090535342693329,
+      -0.9699670672416687,
+      0.24306894838809967,
+      0.10822167992591858
+    ],
+    [
+      0.01718141883611679,
+      0.24289163947105408,
+      0.9699016809463501,
+      0.011487655341625214
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "joint_axis_distances": {
+    "index_02_l": {
+      "joint_axis_distance_m": 0.0092,
+      "tip_axis_distance_m": 0.0238
+    },
+    "middle_02_l": {
+      "joint_axis_distance_m": 0.0161,
+      "tip_axis_distance_m": 0.0244
+    },
+    "ring_02_l": {
+      "joint_axis_distance_m": 0.0168,
+      "tip_axis_distance_m": 0.0219
+    },
+    "pinky_02_l": {
+      "joint_axis_distance_m": 0.0065,
+      "tip_axis_distance_m": 0.0248
+    },
+    "thumb_03_l": {
+      "joint_axis_distance_m": 0.0377,
+      "tip_axis_distance_m": 0.031
+    }
+  }
+}

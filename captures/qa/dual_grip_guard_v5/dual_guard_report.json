@@ -1,0 +1,21 @@
+{
+  "status": "visual_candidate_not_approved",
+  "upper_body_edited": [
+    "spine_02",
+    "spine_03",
+    "upperarm_r",
+    "lowerarm_r",
+    "hand_r",
+    "upperarm_l",
+    "lowerarm_l",
+    "hand_l"
+  ],
+  "original_legs_unchanged": true,
+  "sword_scale_rigid": true,
+  "fingers_original_mesh": true,
+  "views": [
+    "three_quarter",
+    "front",
+    "side"
+  ]
+}
