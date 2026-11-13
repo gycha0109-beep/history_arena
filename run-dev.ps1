@@ -110,13 +110,13 @@ if ($Mode -eq 'replay') {
 
 if ($Mode -eq 'dualwalkqa') {
     $python = Get-Command python -ErrorAction SilentlyContinue
-    if (-not $python) { throw "?? ? ?? ??? Python 3? ?????." }
+    if (-not $python) { throw "양손 검 보행 제작에는 Python 3이 필요합니다." }
     & $python.Source (Join-Path $root 'tools\fetch_consistent_walk_reference.py')
-    if ($LASTEXITCODE -ne 0) { throw "CC0 ?? ?? ????/?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "CC0 전신 모델 다운로드 또는 검증에 실패했습니다." }
     & $python.Source (Join-Path $root 'tools\build_consistent_walk_reference.py')
-    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "기본 전신 보행 데이터를 만들지 못했습니다." }
     & $python.Source (Join-Path $root 'tools\bake_dual_guard_walk.py')
-    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "양손 검을 든 보행 동작 제작에 실패했습니다." }
 
     $blender = Get-Command blender -ErrorAction SilentlyContinue
     $blenderPath = if ($blender) { $blender.Source } else { '' }
@@ -124,35 +124,35 @@ if ($Mode -eq 'dualwalkqa') {
         $candidate = 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
         if (Test-Path $candidate) { $blenderPath = $candidate }
     }
-    if (-not $blenderPath) { throw "Blender? ?? ?????. Blender 5.2 LTS? ??? ???." }
+    if (-not $blenderPath) { throw "Blender를 찾지 못했습니다. Blender 5.2 LTS를 설치해 주세요." }
     $katana = Join-Path $root 'samples\external\qa_katana_dual.glb'
     $wakizashi = Join-Path $root 'samples\external\qa_wakizashi_dual.glb'
     if (-not (Test-Path $katana) -or -not (Test-Path $wakizashi)) {
         & $blenderPath --background --python (Join-Path $root 'tools\build_dual_qa_swords.py')
-        if ($LASTEXITCODE -ne 0) { throw "? ? ??? ?? ?? ?? ??" }
+        if ($LASTEXITCODE -ne 0) { throw "기본 장검과 단검 모델 생성에 실패했습니다." }
     }
     & $blenderPath --background --python (Join-Path $root 'tools\make_rigid_qa_swords.py')
-    if ($LASTEXITCODE -ne 0) { throw "?? ? ??? ?? ??? ? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "가짜 손 모형이 없는 검 모델 제작에 실패했습니다." }
 
     & $godot --headless --editor --path $root --quit
-    if ($LASTEXITCODE -ne 0) { throw "Godot ?? 3D ?? ???? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "Godot에 실제 3D 모델을 가져오지 못했습니다." }
     & $godot --headless --path $root --script res://tests/dual_guard_walk_local.gd
-    if ($LASTEXITCODE -ne 0) { throw "?? ???? ????? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "양손 검과 발걸음 및 손가락 검사에 실패했습니다." }
 
     $captureDir = Join-Path $root 'captures\qa'
     New-Item -ItemType Directory -Path $captureDir -Force | Out-Null
     $avi = Join-Path $captureDir 'dual_guard_walk_5s.avi'
     $mp4 = Join-Path $captureDir 'dual_guard_walk_5s.mp4'
     & $godot --path $root --fixed-fps 60 --write-movie $avi --quit-after 300 res://scenes/dual_guard_walk_5s.tscn
-    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "?? ? 5? ?? ?? ??" }
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $avi)) { throw "5초 이도류 영상 녹화에 실패했습니다." }
     $encoder = Get-Command ffmpeg -ErrorAction SilentlyContinue
-    if (-not $encoder) { throw "FFmpeg ???. AVI? ???: $avi" }
+    if (-not $encoder) { throw "FFmpeg가 없습니다. AVI 파일만 생성됐습니다." }
     & $encoder.Source -hide_banner -loglevel error -y -i $avi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $mp4
-    if ($LASTEXITCODE -ne 0) { throw "MP4 ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "MP4 영상 변환에 실패했습니다." }
     & $encoder.Source -hide_banner -loglevel error -y -ss 2 -i $mp4 -frames:v 1 (Join-Path $captureDir 'dual_guard_walk_poster.jpg')
-    if ($LASTEXITCODE -ne 0) { throw "?? ?? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "영상 표지 이미지 생성에 실패했습니다." }
     & $encoder.Source -hide_banner -loglevel error -y -ss 2 -i $mp4 -vf 'crop=300:260:265:400,scale=900:780' -frames:v 1 (Join-Path $captureDir 'dual_guard_hand_closeup.png')
-    if ($LASTEXITCODE -ne 0) { throw "??? ?? ??? ?? ??" }
+    if ($LASTEXITCODE -ne 0) { throw "손잡이 확대 이미지 생성에 실패했습니다." }
     Remove-Item -LiteralPath $avi -Force
     $baselineDir = Join-Path $root 'captures\walk'
     $baselineMp4 = Join-Path $baselineDir 'fullbody_walk_5s.mp4'
@@ -160,15 +160,15 @@ if ($Mode -eq 'dualwalkqa') {
         New-Item -ItemType Directory -Path $baselineDir -Force | Out-Null
         $baselineAvi = Join-Path $baselineDir 'fullbody_walk_5s.avi'
         & $godot --path $root --fixed-fps 60 --write-movie $baselineAvi --quit-after 300 res://scenes/fullbody_walk_5s.tscn
-        if ($LASTEXITCODE -ne 0) { throw "Original walk reference recording failed" }
+        if ($LASTEXITCODE -ne 0) { throw "기본 걷기 비교 영상 녹화에 실패했습니다." }
         & $encoder.Source -hide_banner -loglevel error -y -i $baselineAvi -c:v libx264 -crf 19 -pix_fmt yuv420p -movflags +faststart $baselineMp4
-        if ($LASTEXITCODE -ne 0) { throw "Original walk reference encoding failed" }
+        if ($LASTEXITCODE -ne 0) { throw "기본 걷기 비교 영상 변환에 실패했습니다." }
         Remove-Item -LiteralPath $baselineAvi -Force
     }
     Copy-Item -LiteralPath (Join-Path $root 'tools\dual_guard_walk_viewer.html') -Destination (Join-Path $captureDir 'dual_guard_walk_preview.html') -Force
-    Write-Host ("5? ?? ? ??: " + $mp4)
-    Write-Host ("HTML ????: " + (Join-Path $captureDir 'dual_guard_walk_preview.html'))
-    Write-Warning "?? ??? ?? ???? ??? ?? ??? CC0 ?????."
+    Write-Host ("Dual-wield 5-second video: " + $mp4)
+    Write-Host ("HTML preview: " + (Join-Path $captureDir 'dual_guard_walk_preview.html'))
+    Write-Warning "CC0 rigged mannequin only; not final Musashi model."
     exit 0
 }
 
