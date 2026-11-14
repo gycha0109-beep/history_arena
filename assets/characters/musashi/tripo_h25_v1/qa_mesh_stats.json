@@ -1,0 +1,21 @@
+{
+  "source": "musashi_h25_original.glb",
+  "mesh_objects": 1,
+  "vertices": 196216,
+  "triangles": 345656,
+  "armatures": 0,
+  "animations": 0,
+  "materials": 1,
+  "bbox_min": [
+    -0.2013702541589737,
+    -0.153472900390625,
+    0.0
+  ],
+  "bbox_max": [
+    0.2013702541589737,
+    0.153472900390625,
+    0.999969482421875
+  ],
+  "height_in_source_units": 0.999969482421875,
+  "note": "Unrigged H2.5 base asset. Original GLB preserved."
+}
