@@ -20,3 +20,8 @@ samples/external/
 # Python test caches
 __pycache__/
 *.pyc
+
+# Downloaded third-party base assets (reproducible, not versioned)
+assets/source_candidates/
+# Blender backup revisions
+*.blend1
