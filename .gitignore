@@ -25,3 +25,6 @@ __pycache__/
 assets/source_candidates/
 # Blender backup revisions
 *.blend1
+
+# Temporary Python environment for external AI trials
+.venv-mesh-ai/

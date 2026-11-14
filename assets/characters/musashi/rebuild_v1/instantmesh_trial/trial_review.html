@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>무사시 AI 3D 시험 결과</title>
+<style>:root{color-scheme:dark}body{margin:0;background:#0d0f14;color:#e6e8ee;font-family:system-ui,'Malgun Gothic',sans-serif}header{padding:22px 26px;background:#161a22;border-bottom:1px solid #3b3f49}h1{font-size:22px;margin:0 0 8px}h2{font-size:18px;margin:0 0 12px}p{line-height:1.6;margin:6px 0}main{margin:auto;padding:22px;max-width:1280px}.warn{border-left:4px solid #d1a259;background:#29241f;padding:14px 17px;margin-bottom:18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:#191d25;padding:16px;border:1px solid #393f49;border-radius:10px}.panel img{display:block;max-width:100%;height:auto;max-height:720px;object-fit:contain;margin:auto}.single{margin-top:16px}.callout{color:#b7bdca}a{color:#9cc6ff}@media(max-width:850px){.grid{grid-template-columns:1fr}}</style>
+</head><body><header><h1>무사시 — 외부 AI 3D 생성 실험</h1><p>2026-11-14 | 입력: 기준 정면 축소 이미지 | 결과: 다중시점 이미지 생성, 3D GLB 미생성</p></header>
+<main>
+<div class="warn"><b>3D 캐릭터 생성 실패 — 목표 품질 미달</b><p>InstantMesh의 2D 다중시점 생성까지만 성공했습니다. 실제 3D 생성 단계에서 무료 ZeroGPU 사용 한도가 종료되어 Blender에 넣을 수 있는 GLB는 없습니다. 아래 6방향 이미지를 3D 모델로 오인하면 안 됩니다.</p></div>
+<div class="grid">
+<section class="panel"><h2>입력 이미지 — 목표 시트의 정면 추출</h2><img src="../reference_front_256.jpg" alt="목표 무사시 정면"></section>
+<section class="panel"><h2>이전 임시 3D 모델 — 불합격</h2><img src="../../sheet_v3/front.jpg" alt="기존 무사시 V3 정면"></section>
+</div>
+<section class="panel single"><h2>InstantMesh 생성 다중시점 (2D 이미지)</h2><img src="generated_multiview_clean.png" alt="InstantMesh에서 생성한 다중시점 이미지"><p class="callout">붉은 띠·검은 의상 등 특징을 일부 유지했지만 머리 형태, 의상 비율, 손과 발 및 뒷면이 원화와 달라졌습니다. 검의 형상도 재현되지 않았습니다.</p></section>
+<section class="panel single"><h2>서비스별 결과</h2><p><b>TRELLIS.2</b>: 생성 GPU 사용 한도 초과 → 3D 생성 실패</p><p><b>Stable Fast 3D</b>: 원격 서버 내부 오류 → 3D 생성 실패</p><p><b>InstantMesh</b>: 다중 시점 2D 생성 성공, GLB 변환 GPU 한도 소진 → 3D 생성 실패</p><p>외부 생성 서비스의 계정 인증 또는 사용 가능한 크레딧이 확보되어야 GLB 생성 작업을 재시도할 수 있습니다. 비용이 발생하는 작업은 임의로 진행하지 않았습니다.</p></section>
+</main></body></html>
