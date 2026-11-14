@@ -1,12 +1,13 @@
 from pathlib import Path
 from gradio_client import Client,handle_file
+from huggingface_hub import get_token
 import shutil,traceback,sys
 root=Path(__file__).resolve().parents[1]
 source=root/'assets/characters/musashi/rebuild_v1/reference_front_256.jpg'
 out=root/'assets/characters/musashi/rebuild_v1/instantmesh_trial'
 out.mkdir(parents=True,exist_ok=True)
 try:
-    c=Client('TencentARC/InstantMesh',verbose=False)
+    c=Client('TencentARC/InstantMesh',hf_token=get_token(),verbose=False)
     print('INSTANTMESH_CONNECTED',flush=True)
     pre=c.predict(handle_file(str(source)),True,api_name='/preprocess')
     print('INSTANTMESH_PREPARED',str(pre)[:160],flush=True)

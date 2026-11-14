@@ -4,6 +4,7 @@ No paid API or GPU job. Output is experimental and needs visual QA.
 from pathlib import Path
 import shutil, sys, time, traceback, json
 from gradio_client import Client, handle_file
+from huggingface_hub import get_token
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"assets/characters/musashi/rebuild_v1/trellis2_trial"
@@ -11,7 +12,7 @@ OUT.mkdir(parents=True,exist_ok=True)
 SOURCE=ROOT/"assets/characters/musashi/rebuild_v1/reference_front_256.jpg"
 assert SOURCE.exists(),f"Missing uploaded front reference: {SOURCE}"
 print("TRIAL_SOURCE", SOURCE, "bytes",SOURCE.stat().st_size,flush=True)
-client=Client("microsoft/TRELLIS.2", verbose=False)
+client=Client("microsoft/TRELLIS.2", hf_token=get_token(), verbose=False)
 print("TRIAL_CONNECTED",flush=True)
 try:
     client.predict(api_name="/start_session")

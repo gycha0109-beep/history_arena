@@ -1,6 +1,7 @@
 from pathlib import Path
 import shutil, traceback, sys, json
 from gradio_client import Client, handle_file
+from huggingface_hub import get_token
 ROOT=Path(__file__).resolve().parents[1]
 inp=ROOT/"assets/characters/musashi/rebuild_v1/reference_front_256.jpg"
 out=ROOT/"assets/characters/musashi/rebuild_v1/sf3d_trial"
@@ -8,7 +9,7 @@ out.mkdir(parents=True,exist_ok=True)
 assert inp.is_file()
 print("SF3D_INPUT",str(inp),inp.stat().st_size,flush=True)
 try:
-    c=Client("stabilityai/stable-fast-3d",verbose=False)
+    c=Client("stabilityai/stable-fast-3d",hf_token=get_token(),verbose=False)
     print("SF3D_CONNECTED",flush=True)
     result=c.predict(handle_file(str(inp)), 0.85, "None", -1, 1024,api_name="/run_button")
     print("SF3D_RESULT",str(result)[:500],flush=True)
