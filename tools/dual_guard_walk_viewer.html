@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레전더리 배틀 · 이도류 5초 보행 검증</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#0b111b;color:#edf3ff;font:15px/1.55 system-ui,"Malgun Gothic",sans-serif}
+main{max-width:1150px;margin:auto;padding:26px}
+h1{font-size:24px;margin:0 0 10px}h2{font-size:18px;margin:0 0 12px}
+p{color:#b0bfd5}strong{color:#edf3ff}
+.grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:23px;align-items:start}
+.panel{background:#162132;border:1px solid #35465f;border-radius:14px;padding:16px}
+video{width:100%;display:block;aspect-ratio:9/16;object-fit:contain;background:#040811;border-radius:10px}
+img{max-width:100%;height:auto;border-radius:9px;border:1px solid #40506c}
+dl{margin:0}dt{font-size:13px;color:#9aafca;margin-top:14px}dd{margin:2px 0}
+button{background:#294973;border:1px solid #5a7eac;color:white;border-radius:7px;padding:8px 14px;cursor:pointer}
+a{color:#a9d3ff}
+.controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:12px}
+input[type=range]{flex:1;min-width:120px}
+@media(max-width:800px){main{padding:13px}.grid{grid-template-columns:1fr}}
+</style></head><body><main>
+<h1>레전더리 배틀 · 5초 이도류 전투 보행 검사</h1>
+<p>오른손 장검 + 왼손 단검. 앞서 개선된 5초 전신 보행에 양손 가드와 실제 손가락 관절 자세를 적용한 <strong>동작 검증용</strong> 영상입니다. 최종 무사시 모델이 아닙니다.</p>
+<div class="grid">
+<section class="panel">
+<h2>양손 검 보행 — 현재 검사 영상</h2>
+<video id="guard" src="dual_guard_walk_5s.mp4" controls playsinline loop muted preload="metadata" poster="dual_guard_walk_poster.jpg"></video>
+<div class="controls"><button id="replay">처음부터</button><button id="prev">-1프레임</button><button id="next">+1프레임</button>
+<input type="range" id="seek" min="0" max="300" step="1" value="0"><output id="stamp">0/300</output></div>
+<p><a href="dual_guard_walk_5s.mp4">동영상 직접 열기</a></p>
+</section>
+<section class="panel">
+<h2>검증 내용과 남은 문제</h2>
+<dl>
+<dt>걷기</dt><dd>기존 원본 보행의 발·무릎·골반 움직임 그대로 유지. 5초간 5.215m 이동</dd>
+<dt>오른손</dt><dd>실제 리깅된 손가락을 사용하는 카타나 그립, 독립 검 메시</dd>
+<dt>왼손</dt><dd>실제 리깅된 손가락을 사용하는 와키자시 그립, 별도 손뼈와 별도 검</dd>
+<dt>검날</dt><dd>두 검은 몸통 바깥쪽을 향하도록 설정하고 크기를 고정</dd>
+<dt>자동 검사</dt><dd>300프레임에서 발걸음 변형 없음·무기 배율 유지·손 위치·몸통 근접 거리 확인</dd>
+<dt>남은 문제</dt><dd><strong>최종 무사시 외형 부재.</strong> 손가락의 실제 접촉과 검객 특유의 가드 자세는 최종 캐릭터에서 추가 정밀 제작이 필요</dd>
+</dl>
+<h2 style="margin-top:22px">손과 손잡이 확대</h2>
+<img src="dual_guard_hand_closeup.png" alt="실제 인체 손가락과 두 검의 손잡이 자세를 확대해 확인하는 프레임">
+<p>위 정지 화면은 그립 형태를 확인하기 위한 확대본이며, 손가락 접촉이 완벽하다는 증거는 아닙니다.</p>
+<h2>기존 보행과 비교</h2>
+<video id="baseline" src="../walk/fullbody_walk_5s.mp4" controls playsinline loop muted preload="metadata"></video>
+<p>위쪽 영상과 같은 모델의 원래 걷기입니다. 발 동작을 보정한다며 다시 망가뜨리지 않았는지 비교할 수 있습니다.</p>
+</section>
+</div>
+</main><script>
+const video=document.getElementById('guard'),seek=document.getElementById('seek'),stamp=document.getElementById('stamp');
+const move=n=>{const f=Math.max(0,Math.min(300,n));video.pause();video.currentTime=f/60;seek.value=f;stamp.textContent=f+'/300';};
+document.getElementById('replay').onclick=()=>move(0);
+document.getElementById('prev').onclick=()=>move(Number(seek.value)-1);
+document.getElementById('next').onclick=()=>move(Number(seek.value)+1);
+seek.oninput=()=>move(Number(seek.value));
+video.ontimeupdate=()=>{if(!video.paused){const f=Math.round(video.currentTime*60);seek.value=f;stamp.textContent=f+'/300';}};
+</script></body></html>

@@ -1,0 +1,32 @@
+{
+  "r": {
+    "blade_axis": [
+      0.1002,
+      -0.8216,
+      0.5611
+    ],
+    "edge_axis": [
+      -0.9812,
+      -0.175,
+      -0.081
+    ]
+  },
+  "l": {
+    "blade_axis": [
+      -0.02,
+      -0.9705,
+      0.2401
+    ],
+    "edge_axis": [
+      0.9815,
+      0.0267,
+      0.1896
+    ]
+  },
+  "left_index": {
+    "penetrating": 3,
+    "severely_penetrating": 0,
+    "surface_contact": 15,
+    "inside_handle_range": 173
+  }
+}

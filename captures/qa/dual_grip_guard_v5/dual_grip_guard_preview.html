@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레전더리 배틀 | 이도류 파지·자세 V5</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b121b;color:#eef3f7;font:15px/1.6 system-ui,'Malgun Gothic',sans-serif}main,header{max-width:1320px;margin:auto;padding:22px 26px}
+h1{font-size:24px;margin:0}h2{font-size:20px;margin:25px 0 13px}h3{font-size:16px;margin:4px 0 12px}.sub{color:#a8b9cc}
+.notice{background:#23232b;border-left:4px solid #d6a66d;padding:15px 20px;margin:16px 0;color:#e6e0d2}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.media{background:#1b2532;border:1px solid #334256;padding:14px;border-radius:10px;min-width:0}
+.media img{width:100%;display:block;border-radius:6px;background:#0b1016}.media video{display:block;width:100%;max-width:380px;margin:0 auto;aspect-ratio:9/16;background:#0b1016;border-radius:6px}p{color:#a9b9ce}a{color:#9fc8f7}hr{border:0;border-top:1px solid #324054;margin:29px 0}
+small{color:#98a9bd}.table{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:9px 13px;text-align:left;border-bottom:1px solid #344054}
+</style></head><body>
+<header><h1>무사시 이도류 — 검 방향·왼손 그립·가드 자세 V5</h1><p class="sub">실제 Blender 렌더링 | CC0 임시 인체 | 기존 걷기 보존 | 검토용</p></header>
+<main>
+<div class="notice"><b>아직 최종 합격이 아닙니다.</b> 양손 칼날의 방향을 개별 정렬하고, 왼손 검지의 심한 손잡이 관통을 줄였으며, 몸통·양팔 목표 위치를 변경했습니다. 중지·약지의 일부 관통과 팔의 경직이 남아 있으며, 오른쪽 손목 회전량이 커 정밀 교정이 필요합니다.</div>
+<h2>이전 검토본과 V5 비교</h2>
+<div class="grid">
+<div class="media"><h3>V5 — 새 방향 / 새 정지 자세</h3><video controls autoplay muted loop playsinline src="dual_guard_angles_5s.mp4"></video></div>
+<div class="media"><h3>V4 — 이전 자세 (비교용)</h3><video controls muted loop playsinline src="../dual_grip_guard_v4/dual_guard_angles_5s.mp4"></video></div>
+</div>
+<p>두 영상은 3방향의 <b>정지 렌더링을 5초로 연결한 검토 자료</b>입니다. 보행이나 공격 모션은 아닙니다.</p>
+<h2>전신 및 상체 실제 렌더</h2>
+<div class="grid">
+<div class="media"><h3>45도</h3><a href="dual_guard_three_quarter.png"><img src="dual_guard_three_quarter.png" alt="새 이도류 45도"></a></div>
+<div class="media"><h3>정면</h3><a href="dual_guard_front.png"><img src="dual_guard_front.png" alt="새 이도류 정면"></a></div>
+<div class="media"><h3>측면</h3><a href="dual_guard_side.png"><img src="dual_guard_side.png" alt="새 이도류 측면"></a></div>
+<div class="media"><h3>상체·팔꿈치 확대</h3><a href="dual_guard_upper_body.png"><img src="dual_guard_upper_body.png" alt="상체 자세 확대"></a></div>
+</div>
+<h2>오른손 장검 — 손잡이 상세</h2>
+<div class="grid">
+<div class="media"><h3>손가락 감김</h3><a href="r_finger_wrap.png"><img src="r_finger_wrap.png" alt="오른손 장검 그립"></a></div>
+<div class="media"><h3>엄지 위치</h3><a href="r_thumb_contact.png"><img src="r_thumb_contact.png" alt="오른손 엄지"></a></div>
+<div class="media"><h3>손 전체 / 칼날 방향</h3><a href="r_handle_overview.png"><img src="r_handle_overview.png" alt="오른손 손잡이 전체"></a></div>
+</div>
+<h2>왼손 단검 — 손가락 관통 검수</h2>
+<div class="grid">
+<div class="media"><h3>검지·네 손가락</h3><a href="l_finger_wrap.png"><img src="l_finger_wrap.png" alt="왼손 검지 관통 개선"></a></div>
+<div class="media"><h3>엄지 위치</h3><a href="l_thumb_contact.png"><img src="l_thumb_contact.png" alt="왼손 엄지"></a></div>
+<div class="media"><h3>손 전체 / 츠바 / 손잡이 끝</h3><a href="l_handle_overview.png"><img src="l_handle_overview.png" alt="왼손 전체 파지"></a></div>
+</div>
+<hr>
+<h2>검증 요약</h2>
+<div class="table"><table><tr><th>항목</th><th>현재 판정</th></tr>
+<tr><td>서로 다른 칼날 방향</td><td>강체 모델의 방향축 분리 확인</td></tr>
+<tr><td>왼손 검지 손잡이 내부 표본</td><td>이전 57개 → 현재 3개 (표본 기반, 완전 무관통 아님)</td></tr>
+<tr><td>중지·약지, 오른손 전체</td><td>추가 접촉·관통 교정 필요</td></tr>
+<tr><td>전투 가드의 자연스러움</td><td>전신 외형 검토 중, 합격 아님</td></tr>
+<tr><td>기존 보행 및 main</td><td>수정하지 않음</td></tr></table></div>
+<p><small>재생성: 프로젝트 루트에서 <code>run-next-qa.cmd</code>. 검토 전에 GitHub에 푸시하거나 main으로 병합하지 않습니다.</small></p>
+</main></body></html>

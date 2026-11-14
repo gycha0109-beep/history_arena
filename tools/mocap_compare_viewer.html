@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레전더리 배틀: 보행 비교</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#0b1019;color:#f2f5ff;font:15px/1.5 system-ui,"Malgun Gothic",sans-serif}
+main{max-width:1100px;margin:auto;padding:22px}
+h1{font-size:24px;margin:0 0 12px}p{color:#b8c6db}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.panel{background:#151e2d;border:1px solid #34425d;padding:14px;border-radius:12px}
+video{width:100%;background:#05070b;aspect-ratio:9/16;max-height:680px;border-radius:8px;object-fit:contain}
+button{background:#21446c;color:white;border:1px solid #5577ae;border-radius:8px;padding:10px 14px;cursor:pointer}
+@media(max-width:650px){.pair{grid-template-columns:1fr}main{padding:12px}}
+</style></head><body><main>
+<h1>5초 보행 — 기존 불합격본 / 새 후보 비교</h1>
+<p><strong>두 영상 모두 최종 무사시 품질 승인본이 아닙니다.</strong> 캐릭터도 다르므로 발걸음과 체중 이동만 확인하세요.</p>
+<div class="pair">
+<section class="panel"><h2>기존 — 불합격</h2>
+<video id="old" controls playsinline muted loop src="walk_5s.mp4"></video>
+<p>잘못된 발 위치 강제 보정. 발이 떠 있는 상태에서 다리를 내젓는 모습.</p></section>
+<section class="panel"><h2>모션캡처 기반 — 시험 후보</h2>
+<video id="new" controls playsinline muted loop src="mocap_5s_compare.mp4"></video>
+<p>별도 3D 모델의 모션캡처 보행을 재생. 인위적인 발 궤적과 관절 덮어쓰기는 없음.</p></section>
+</div><p>
+<button id="toggle">두 영상 동시 재생 / 정지</button>
+<button id="reset">둘 다 처음부터</button>
+</p><p>두 모델은 QA 참고용으로만 사용합니다. 라이선스와 원본 출처는 프로젝트 문서를 참고하세요.</p>
+</main><script>
+const a=document.getElementById("old"),b=document.getElementById("new");
+document.getElementById("toggle").onclick=async()=>{if(a.paused){b.currentTime=a.currentTime;await Promise.allSettled([a.play(),b.play()]);}else{a.pause();b.pause();}};
+document.getElementById("reset").onclick=()=>{a.currentTime=0;b.currentTime=0;};
+</script></body></html>
